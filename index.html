@@ -336,6 +336,7 @@
       db.settings({ timestampsInSnapshots: true });
 
       var currentUserId = null;
+      var totalCollRef = null;
 
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -345,8 +346,7 @@
           
           const path = getStudentCollectionPath(user["uid"]);
 
-          var totalCollRef = db.collection(basePath);
-          totalCollRef.onSnapshot(onTeacherUpdateCall);
+          totalCollRef = db.collection(basePath).onSnapshot(onTeacherUpdateCall);
         } else {
           showAuthContent();
         }

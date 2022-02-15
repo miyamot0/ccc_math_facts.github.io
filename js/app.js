@@ -14,6 +14,24 @@ function login() {
 }
 
 function logout() {
+  totalCollRef();
+
+  document.getElementById("participantDiv").innerHTML = "";
+  var tableBody = document.getElementById("tableBody2");
+  tableBody.innerHTML = "";
+
+  var tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML = "";
+
+  var selectHolderRef = document.getElementById("selectHolder");
+  selectHolderRef.innerHTML = "";
+
+  document.getElementById("nParticipantSpan").innerHTML = buildHeader(
+    '...'
+  );
+
+  clearFigure();
+
   firebase.auth().signOut();
 }
 
@@ -92,8 +110,7 @@ function onTeacherUpdateCall(querySnapshot) {
         currentUserId = selRef.value;
 
         const path = getStudentCollectionPath(currentUserId);
-        var studentCollRef = db.collection(path);
-        studentCollRef.onSnapshot(snapshotUpdateCall);
+        var studentCollRef = db.collection(path).onSnapshot(snapshotUpdateCall);
       } else {
         currentUserId = null;
       }
@@ -194,6 +211,10 @@ function snapshotUpdateCall(querySnapshot) {
 
       tableBody.appendChild(newRow);
     });
+  } else {
+    document.getElementById("nParticipantSpan").innerHTML = buildHeader(
+      '...'
+    );
   }
 }
 
