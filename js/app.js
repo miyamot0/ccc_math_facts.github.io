@@ -263,10 +263,13 @@ function addNewParticipant() {
 function updateParticipant(tag, name) {
   const user = firebase.auth().currentUser;
   const currPath =
-    "performanceCollection/" +
+    "mainCollection/" +
     currentUserId +
     "/Math Facts-Addition/students/" +
     tag;
+
+  console.log(currentUserId);
+  console.log(currPath);
 
   if (oldListenerPath != null || oldListenerPath == currPath) {
     var unsubscribe = db.collection(oldListenerPath).onSnapshot(function () {});
@@ -325,7 +328,7 @@ $(document).on("click", ".open-sessionDialog", function () {
       pNum = parseInt(pNum);
 
       const user = firebase.auth().currentUser;
-      const path = getStudentCollectionPath(user["uid"]) + "/" + pId;
+      const path = getStudentCollectionPath(currentUserId) + "/" + pId;
 
       db.doc(path)
         .update({

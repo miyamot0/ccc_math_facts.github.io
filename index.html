@@ -336,6 +336,7 @@
       db.settings({ timestampsInSnapshots: true });
 
       var currentUserId = null;
+      var currentTeacherId = null;
       var totalCollRef = null;
 
       firebase.auth().onAuthStateChanged((user) => {
