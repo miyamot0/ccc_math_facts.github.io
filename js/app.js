@@ -347,6 +347,14 @@ function updateTable(prePlotter, name) {
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
+    var nMin = row.sessionDuration/60;
+    var cpm = (row.nCorrectInitial / nMin) * 100
+
+    cell = document.createElement("td");
+    cellText = document.createTextNode(cpm.toFixed(2));
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
     cell = document.createElement("td");
     cellText = document.createTextNode(row.errCount);
     cell.appendChild(cellText);
