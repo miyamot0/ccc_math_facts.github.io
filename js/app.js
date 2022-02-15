@@ -211,7 +211,7 @@ function updateParticipant(tag, name) {
       ...doc.data(),
     }));
 
-    updateTable(data);
+    updateTable(data, name);
   });
 }
 
@@ -278,7 +278,7 @@ $(document).on("click", ".open-sessionDialog", function () {
     });
 });
 
-function updateTable(prePlotter) {
+function updateTable(prePlotter, name) {
   var tableBody = document.getElementById("tableBody");
   tableBody.innerHTML = "";
 
@@ -368,60 +368,25 @@ function updateTable(prePlotter) {
     rowId++;
   });
 
-  //updateFigure();
+  updateFigure(name);
 }
 
-/*
-function download() {
-  var csv = "";
-  data.forEach(function (row) {
-    csv += row.join(",");
-    csv += "\n";
-  });
-
-  var hiddenElement = document.createElement("a");
-  hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
-  hiddenElement.target = "_blank";
-  hiddenElement.download = "download.csv";
-  hiddenElement.click();
-
-  console.log(csv);
-}
-
-
-
-function buildDocumentPath(id, tag) {
-  return "storage/" + id + "/participants/" + tag + "/sessions";
-}
-
-function buildDocumentPath1s1c(id, tag) {
-  return "storage/" + id + "/participants/" + tag + "/practice1stim";
-}
-
-function buildDocumentPath1s2c(id, tag) {
-  return "storage/" + id + "/participants/" + tag + "/practice2stim";
-}
-
-function updateFigure() {
+function updateFigure(name) {
   var mLabels = [];
 
   var mPlotData = [];
-  var mPlotDifficulty = [];
 
   var table = document.getElementById("tableBody");
   for (var i = 0, row; (row = table.rows[i]); i++) {
     mPlotData.push({
       x: i,
-      y: parseFloat(row.cells[7].innerText).toFixed(2),
-    });
-
-    mPlotDifficulty.push({
-      x: i,
-      y: parseFloat(row.cells[3].innerText).toFixed(2),
+      y: parseFloat(row.cells[6].innerText),
     });
 
     mLabels.push("" + i);
   }
+
+  console.log(mPlotData)
 
   var config = {
     type: "line",
@@ -431,26 +396,18 @@ function updateFigure() {
         {
           label: "Accuracy",
           data: mPlotData,
-          borderColor: window.chartColors.green,
+          //borderColor: window.chartColors.green,
           backgroundColor: "rgba(0, 0, 0, 0)",
           fill: false,
           lineTension: 0,
-        },
-        {
-          label: "Difficulty",
-          data: mPlotDifficulty,
-          borderColor: window.chartColors.red,
-          backgroundColor: "rgba(0, 0, 0, 0)",
-          fill: false,
-          lineTension: 0,
-        },
+        }
       ],
     },
     options: {
       responsive: true,
       title: {
         display: true,
-        text: "Participant Id: ",
+        text: "Participant: " + name,
       },
       tooltips: {
         mode: "index",
@@ -494,600 +451,20 @@ function updateFigure() {
   window.myLine.update();
 }
 
-function updateFigure1s1c() {
-  var mLabels = [];
-  var mPlotData = [];
-
-  var table = document.getElementById("tableBody");
-
-  for (var i = 0, row; (row = table.rows[i]); i++) {
-    mPlotData.push({
-      x: i,
-      y: parseFloat(row.cells[7].innerText).toFixed(2),
-    });
-
-    mLabels.push("" + i);
-  }
-
-  var config = {
-    type: "line",
-    data: {
-      labels: mLabels,
-      datasets: [
-        {
-          label: "Accuracy",
-          data: mPlotData,
-          borderColor: window.chartColors.green,
-          backgroundColor: "rgba(0, 0, 0, 0)",
-          fill: false,
-          lineTension: 0,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      title: {
-        display: true,
-        text: "Participant Training (1s1c)",
-      },
-      tooltips: {
-        mode: "index",
-      },
-      scales: {
-        xAxes: [
-          {
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: "Session",
-            },
-            ticks: {
-              major: {
-                fontStyle: "bold",
-                fontColor: "#FF0000",
-              },
-            },
-          },
-        ],
-        yAxes: [
-          {
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: "Accuracy",
-            },
-            ticks: {
-              suggestedMin: 0,
-            },
-          },
-        ],
-      },
-    },
-  };
-
-  var ctx = document.getElementById("canvas").getContext("2d");
-
-  window.myLine = new Chart(ctx, config);
-  window.myLine.update();
-}
-
-function updateFigure1s2c() {
-  var mLabels = [];
-  var mPlotData = [];
-
-  var table = document.getElementById("tableBody");
-
-  for (var i = 0, row; (row = table.rows[i]); i++) {
-    mPlotData.push({
-      x: i,
-      y: parseFloat(row.cells[7].innerText).toFixed(2),
-    });
-
-    mLabels.push("" + i);
-  }
-
-  var config = {
-    type: "line",
-    data: {
-      labels: mLabels,
-      datasets: [
-        {
-          label: "Accuracy",
-          data: mPlotData,
-          borderColor: window.chartColors.green,
-          backgroundColor: "rgba(0, 0, 0, 0)",
-          fill: false,
-          lineTension: 0,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      title: {
-        display: true,
-        text: "Participant Training (1s2c)",
-      },
-      tooltips: {
-        mode: "index",
-      },
-      scales: {
-        xAxes: [
-          {
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: "Session",
-            },
-            ticks: {
-              major: {
-                fontStyle: "bold",
-                fontColor: "#FF0000",
-              },
-            },
-          },
-        ],
-        yAxes: [
-          {
-            display: true,
-            scaleLabel: {
-              display: true,
-              labelString: "Accuracy",
-            },
-            ticks: {
-              suggestedMin: 0,
-            },
-          },
-        ],
-      },
-    },
-  };
-
-  var ctx = document.getElementById("canvas").getContext("2d");
-
-  window.myLine = new Chart(ctx, config);
-  window.myLine.update();
-}
-
-
-
-function updateTable1s1c(prePlotter) {
-  var tableBody = document.getElementById("tableBody");
-  tableBody.innerHTML = "";
-
-  var rowId = 0;
-
-  data = [];
-  data.push([
-    "Date",
-    "Difficulty",
-    "Trial Count",
-    "Accuracy",
-    "s1c1",
-    "s1c2",
-    "s2c1",
-    "s2c2",
-    "corLeft",
-    "corRight",
-    "wrngLeft",
-    "wrngRight",
-    "skipped",
-    "correct",
-    "incorrect",
-    "s1corL",
-    "s1corR",
-    "s1errL",
-    "s1errR",
-    "s2corL",
-    "s2corR",
-    "s2errL",
-    "s2errR",
-    "latencyCorrect",
-    "latencyIncorrect",
-  ]);
-
-  prePlotter.forEach(function (row) {
-    var newRow = document.createElement("tr");
-
-    // Session Num
-    var cell = document.createElement("td");
-    var cellText = document.createTextNode(rowId);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // Session Date
-    var cell = document.createElement("td");
-    var cellText = document.createTextNode(row.sessionDate);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // Display time
-    cell = document.createElement("td");
-    cellText = document.createTextNode(0);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // difficultyLevel
-    cell = document.createElement("td");
-    cellText = document.createTextNode("---");
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // trialCount
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.trialCount);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // correctAnswers
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.correctAnswers);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    //
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.wrongAnswers);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    // percentage correct
-    cell = document.createElement("td");
-    cellText = document.createTextNode(
-      (
-        (row.correctAnswers / (row.wrongAnswers + row.correctAnswers)) *
-        100
-      ).toFixed(2)
-    );
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    var gridSize = row.trialCount / 2;
-
-    var logD =
-      0.5 *
-      Math.log10(
-        ((row.s1c1 + constant) / (gridSize - row.s1c1 + constant)) *
-          ((row.s2c2 + constant) / (gridSize - row.s2c2 + constant))
-      );
-
-    // log d
-    cell = document.createElement("td");
-    cellText = document.createTextNode("---");
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    var logB =
-      0.5 *
-      Math.log10(
-        ((row.corLeft + constant) / (row.corRght + constant)) *
-          ((row.errLeft + constant) / (row.errRght + constant))
-      );
-
-    // log b
-    cell = document.createElement("td");
-    cellText = document.createTextNode("---");
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    data.push([
-      row.sessionDate,
-      row.difficultyLevel,
-      row.trialCount,
-      (row.correctAnswers / (row.wrongAnswers + row.correctAnswers)) * 100,
-      row.s1c1,
-      row.s1c2,
-      row.s2c1,
-      row.s2c2,
-      row.corLeft,
-      row.corRght,
-      row.errLeft,
-      row.errRght,
-      row.skippedTrials,
-      row.correctAnswers,
-      row.wrongAnswers,
-      row.s1corL,
-      row.s1corR,
-      row.s1errL,
-      row.s1errR,
-      row.s2corL,
-      row.s2corR,
-      row.s2errL,
-      row.s2errR,
-      row.latencyCorrect,
-      row.latencyIncorrect,
-    ]);
-
-    rowId++;
+function download() {
+  var csv = "";
+  data.forEach(function (row) {
+    csv += row.join(",");
+    csv += "\n";
   });
 
-  updateFigure1s1c();
+  var hiddenElement = document.createElement("a");
+  hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+  hiddenElement.target = "_blank";
+  hiddenElement.download = "download.csv";
+  hiddenElement.click();
+
+  //console.log(csv);
 }
-
-function updateTable1s2c(prePlotter) {
-  var tableBody = document.getElementById("tableBody");
-  tableBody.innerHTML = "";
-
-  var rowId = 0;
-
-  data = [];
-  data.push([
-    "Date",
-    "Difficulty",
-    "Trial Count",
-    "Accuracy",
-    "s1c1",
-    "s1c2",
-    "s2c1",
-    "s2c2",
-    "corLeft",
-    "corRight",
-    "wrngLeft",
-    "wrngRight",
-    "skipped",
-    "correct",
-    "incorrect",
-    "s1corL",
-    "s1corR",
-    "s1errL",
-    "s1errR",
-    "s2corL",
-    "s2corR",
-    "s2errL",
-    "s2errR",
-    "latencyCorrect",
-    "latencyIncorrect",
-  ]);
-
-  prePlotter.forEach(function (row) {
-    var newRow = document.createElement("tr");
-
-    // Session Num
-    var cell = document.createElement("td");
-    var cellText = document.createTextNode(rowId);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // Session Date
-    var cell = document.createElement("td");
-    var cellText = document.createTextNode(row.sessionDate);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // Display time
-    cell = document.createElement("td");
-    cellText = document.createTextNode(0);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // difficultyLevel
-    cell = document.createElement("td");
-    cellText = document.createTextNode("---");
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // trialCount
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.trialCount);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // correctAnswers
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.correctAnswers);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    //
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.wrongAnswers);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    // percentage correct
-    cell = document.createElement("td");
-    cellText = document.createTextNode(
-      (
-        (row.correctAnswers / (row.wrongAnswers + row.correctAnswers)) *
-        100
-      ).toFixed(2)
-    );
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    var gridSize = row.trialCount / 2;
-
-    var logD =
-      0.5 *
-      Math.log10(
-        ((row.s1c1 + constant) / (gridSize - row.s1c1 + constant)) *
-          ((row.s2c2 + constant) / (gridSize - row.s2c2 + constant))
-      );
-
-    // log d
-    cell = document.createElement("td");
-    cellText = document.createTextNode("---");
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    var logB =
-      0.5 *
-      Math.log10(
-        ((row.corLeft + constant) / (row.corRght + constant)) *
-          ((row.errLeft + constant) / (row.errRght + constant))
-      );
-
-    // log b
-    cell = document.createElement("td");
-    cellText = document.createTextNode("---");
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    data.push([
-      row.sessionDate,
-      row.difficultyLevel,
-      row.trialCount,
-      (row.correctAnswers / (row.wrongAnswers + row.correctAnswers)) * 100,
-      row.s1c1,
-      row.s1c2,
-      row.s2c1,
-      row.s2c2,
-      row.corLeft,
-      row.corRght,
-      row.errLeft,
-      row.errRght,
-      row.skippedTrials,
-      row.correctAnswers,
-      row.wrongAnswers,
-      row.s1corL,
-      row.s1corR,
-      row.s1errL,
-      row.s1errR,
-      row.s2corL,
-      row.s2corR,
-      row.s2errL,
-      row.s2errR,
-      row.latencyCorrect,
-      row.latencyIncorrect,
-    ]);
-
-    rowId++;
-  });
-
-  updateFigure1s2c();
-}
-
-
-
-function updateParticipant1s1c(tag, name) {
-  const user = firebase.auth().currentUser;
-
-  const currPath = buildDocumentPath1s1c(user["uid"], tag);
-
-  if (oldListenerPath != null || oldListenerPath == currPath) {
-    var unsubscribe = firestore
-      .collection(oldListenerPath)
-      .onSnapshot(function () {});
-    unsubscribe();
-  }
-
-  oldListenerPath = currPath;
-
-  var docRef = firestore.collection(currPath);
-
-  document.getElementById("tagParticipantSpan").innerHTML = name;
-
-  docRef.onSnapshot(function (querySnapshot) {
-    var tableBody = document.getElementById("tableBody");
-    tableBody.innerHTML = "";
-    var prePlotter = [];
-
-    if (!querySnapshot.empty) {
-      querySnapshot.forEach(function (doc) {
-        const mData = doc.data();
-        prePlotter.push(mData);
-      });
-    }
-
-    updateTable1s1c(prePlotter);
-  });
-}
-
-function updateParticipant1s2c(tag, name) {
-  const user = firebase.auth().currentUser;
-
-  const currPath = buildDocumentPath1s2c(user["uid"], tag);
-
-  if (oldListenerPath != null || oldListenerPath == currPath) {
-    var unsubscribe = firestore
-      .collection(oldListenerPath)
-      .onSnapshot(function () {});
-    unsubscribe();
-  }
-
-  oldListenerPath = currPath;
-
-  var docRef = firestore.collection(currPath);
-
-  document.getElementById("tagParticipantSpan").innerHTML = name;
-
-  docRef.onSnapshot(function (querySnapshot) {
-    var tableBody = document.getElementById("tableBody");
-    tableBody.innerHTML = "";
-    var prePlotter = [];
-
-    if (!querySnapshot.empty) {
-      querySnapshot.forEach(function (doc) {
-        const mData = doc.data();
-        prePlotter.push(mData);
-      });
-    }
-
-    updateTable1s2c(prePlotter);
-  });
-}
-
-function editParticipant() {
-  console.log("editing");
-}
-
-*/
-
-/*
-var data = [];
-
-// init db
-const firebaseConfig = {
-  apiKey: "AIzaSyDlyXTl-vh5cKXM8899hYk9de6Njuwsc3w",
-  authDomain: "covcopcompmathfact.firebaseapp.com",
-  projectId: "covcopcompmathfact",
-  storageBucket: "covcopcompmathfact.appspot.com",
-  messagingSenderId: "206486473497",
-  appId: "1:206486473497:web:4b34e91ad8534338ca5388",
-  measurementId: "G-7QE2GHRE1E",
-};
-
-firebase.initializeApp(firebaseConfig);
-
-var firestore = firebase.firestore();
-
-firestore.settings({
-  timestampsInSnapshots: true,
-});
-
-var oldListenerPath = null;
-
-var constant = 0.25;
-
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    hideAuthContent();
-
-    //const path = buildParticipantPath(user["uid"]);
-
-    //var collRef = firestore.collection(path);
-
-    collRef.onSnapshot(snapshotUpdateCall);
-  } else {
-    showAuthContent();
-  }
-});
-
-*/
 
 //})
