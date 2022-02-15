@@ -1,5 +1,3 @@
-//(function() {
-
 function login() {
   var userEmail = document.getElementById("email_field").value;
   var userPass = document.getElementById("password_field").value;
@@ -43,12 +41,66 @@ function showAuthContent() {
   }
 }
 
+function getCollectionPath() {
+  return "mainCollection";
+}
+
 function getStudentCollectionPath(id) {
   return "mainCollection/" + id + "/students";
 }
 
 function buildHeader(size) {
   return size == 1 ? "1 participant" : size + " participants";
+}
+
+function onTeacherUpdateCall(querySnapshot) {
+  if (!querySnapshot.empty) {
+
+    var selectHolderRef = document.getElementById("selectHolder");
+    selectHolderRef.innerHTML = "";
+     
+    var selectList = document.createElement("select");
+    selectList.id = "selectListId";
+
+    var option = document.createElement("option");
+    option.value = null;
+    option.text = "Please select teacher";
+    selectList.appendChild(option);
+
+    querySnapshot.forEach(function (doc) {
+      const teacher = doc.data();
+
+      var option = document.createElement("option");
+      option.value = doc.id;
+      option.text = teacher.teacherName;
+      selectList.appendChild(option);
+    });
+
+    selectHolderRef.addEventListener("change", function() {
+      var selRef = document.getElementById("selectListId");
+
+      if (selRef.value != null) {
+        document.getElementById("participantDiv").innerHTML = "";
+        var tableBody = document.getElementById("tableBody2");
+        tableBody.innerHTML = "";
+
+        var tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+
+        clearFigure();
+
+        currentUserId = selRef.value;
+
+        const path = getStudentCollectionPath(currentUserId);
+        var studentCollRef = db.collection(path);
+        studentCollRef.onSnapshot(snapshotUpdateCall);
+      } else {
+        currentUserId = null;
+      }
+    });
+
+    selectHolderRef.appendChild(selectList);
+  }
 }
 
 function snapshotUpdateCall(querySnapshot) {
@@ -191,7 +243,7 @@ function updateParticipant(tag, name) {
   const user = firebase.auth().currentUser;
   const currPath =
     "performanceCollection/" +
-    user["uid"] +
+    currentUserId +
     "/Math Facts-Addition/students/" +
     tag;
 
@@ -379,6 +431,76 @@ function updateTable(prePlotter, name) {
   updateFigure(name);
 }
 
+function clearFigure() {
+  var mLabels = [];
+
+  var mPlotData = [];
+
+  var table = document.getElementById("tableBody");
+
+  var config = {
+    type: "line",
+    data: {
+      labels: mLabels,
+      datasets: [
+        {
+          label: "Accuracy",
+          data: mPlotData,
+          //borderColor: window.chartColors.green,
+          backgroundColor: "rgba(0, 0, 0, 0)",
+          fill: false,
+          lineTension: 0,
+        }
+      ],
+    },
+    options: {
+      responsive: true,
+      title: {
+        display: true,
+        text: "Participant: " + name,
+      },
+      tooltips: {
+        mode: "index",
+      },
+      scales: {
+        xAxes: [
+          {
+            //type: 'time',
+            display: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Session",
+            },
+            ticks: {
+              major: {
+                fontStyle: "bold",
+                fontColor: "#FF0000",
+              },
+            },
+          },
+        ],
+        yAxes: [
+          {
+            display: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Accuracy",
+            },
+            ticks: {
+              suggestedMin: 0,
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  var ctx = document.getElementById("canvas").getContext("2d");
+
+  window.myLine = new Chart(ctx, config);
+  window.myLine.update();  
+}
+
 function updateFigure(name) {
   var mLabels = [];
 
@@ -393,8 +515,6 @@ function updateFigure(name) {
 
     mLabels.push("" + i);
   }
-
-  console.log(mPlotData)
 
   var config = {
     type: "line",
@@ -472,7 +592,4 @@ function download() {
   hiddenElement.download = "download.csv";
   hiddenElement.click();
 
-  //console.log(csv);
 }
-
-//})

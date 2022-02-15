@@ -80,6 +80,9 @@
             <div class="jumbotron">
               <h2 class="h2-responsive">Cover Copy Compare Dashboard</h2>
               <br />
+              <p id="selectHolder" class="lead">
+                
+              </p>
               <p class="lead">
                 At present, a total of
                 <span id="nParticipantSpan">... participants</span> are active.
@@ -326,22 +329,25 @@
         appId: "1:206486473497:web:4b34e91ad8534338ca5388",
         measurementId: "G-7QE2GHRE1E",
       };
+      
       firebase.initializeApp(config);
+
       const db = firebase.firestore();
       db.settings({ timestampsInSnapshots: true });
 
+      var currentUserId = null;
+
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          console.log("signed in");
           hideAuthContent();
 
+          const basePath = getCollectionPath();
+          
           const path = getStudentCollectionPath(user["uid"]);
 
-          var studentCollRef = db.collection(path);
-
-          studentCollRef.onSnapshot(snapshotUpdateCall);
+          var totalCollRef = db.collection(basePath);
+          totalCollRef.onSnapshot(onTeacherUpdateCall);
         } else {
-          console.log("no auth");
           showAuthContent();
         }
       });
