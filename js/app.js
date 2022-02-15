@@ -53,7 +53,6 @@ function buildHeader(size) {
 
 function snapshotUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
-    console.log(querySnapshot.size);
 
     document.getElementById("nParticipantSpan").innerHTML = buildHeader(
       querySnapshot.size
@@ -65,8 +64,6 @@ function snapshotUpdateCall(querySnapshot) {
 
     querySnapshot.forEach(function (doc) {
       const data = doc.data();
-
-      console.log(data);
 
       //
       var newRow = document.createElement("tr");
@@ -205,29 +202,173 @@ function updateParticipant(tag, name) {
 
   oldListenerPath = currPath;
 
-  console.log(currPath);
-
   var docRef = db.collection(currPath);
 
   document.getElementById("tagParticipantSpan").innerHTML = name;
 
-  /*
+  docRef.onSnapshot((snapshot) => {
+    const data = snapshot.docs.map((doc) => ({
+      ...doc.data(),
+    }));
 
-    docRef.onSnapshot(function (querySnapshot) {
-      var tableBody = document.getElementById("tableBody");
-      tableBody.innerHTML = "";
-      var prePlotter = [];
-  
-      if (!querySnapshot.empty) {
-        querySnapshot.forEach(function (doc) {
-          const mData = doc.data();
-          prePlotter.push(mData);
-        });
+    updateTable(data);
+  });
+}
+
+
+$(document).on("click", ".open-sessionDialog", function () {
+  var pId = $(this).data("id");
+  var pTag = $(this).data("participanttag");
+  var pTgt = $(this).data("participanttarget");
+  var pSS = $(this).data("participantsetsize");
+  var pNum = $(this).data("participantset");
+
+  $(".modal-body #editParticipantTag").val(pTag);
+  $(".modal-body #editParticipantTarget").val(pTgt);
+  $(".modal-body #editParticipantSetSize").val(pSS);
+  $(".modal-body #editParticipantSet").val(pNum);
+  $(".modal-body #editParticipantID").val(pId);
+
+  $("#editParticipantSave").click(null);
+  $("#editParticipantSave")
+    .unbind()
+    .click(function () {
+      var pTag = document.getElementById("editParticipantTag").value;
+      var pTgt = document.getElementById("editParticipantTarget").value;
+      var pSS = document.getElementById("editParticipantSetSize").value;
+      var pNum = document.getElementById("editParticipantSet").value;
+
+      if (!$.isNumeric(pSS)) {
+        alert("Duration (seconds) must be a number.");
+        return;
       }
-  
-      updateTable(prePlotter);
+
+      if (!$.isNumeric(pNum)) {
+        alert("Trials (counts) must be a number.");
+        return;
+      }
+
+      pSS = parseInt(pSS);
+      pNum = parseInt(pNum);
+
+      const user = firebase.auth().currentUser;
+      const path = getStudentCollectionPath(user["uid"]) + "/" + pId;
+
+      db.doc(path)
+        .update({
+          name: pTag,
+          set: pNum,
+          setSize: pSS,
+          target: pTgt,
+        })
+        .then(function (docRef) {
+          $("#editParticipantModal").modal("hide");
+
+          document.getElementById("editParticipantTag").value = "";
+          document.getElementById("editParticipantTarget").value = "";
+          document.getElementById("editParticipantSetSize").value = "";
+          document.getElementById("editParticipantSet").value = "";
+          document.getElementById("editParticipantID").value = "";
+        })
+        .catch(function (err) {
+          alert(err);
+        });
+
+      $("#editParticipantSave").click(null);
     });
-    */
+});
+
+function updateTable(prePlotter) {
+  var tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML = "";
+
+  var rowId = 0;
+
+  data = [];
+  data.push([
+    "Date",
+    "Target",
+    "Set Size",
+    "Set",
+    "Correct",
+    "Incorrect",
+    "Time",
+    "Percentage",
+  ]);
+
+  prePlotter.forEach(function (row) {
+    var newRow = document.createElement("tr");
+
+    // Session Num
+    var cell = document.createElement("td");
+    var cellText = document.createTextNode(rowId);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    // Session Date
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.dateTimeStart);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    // difficultyLevel
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.target);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    // trialCount
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.setSize);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    // trialCount
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.set);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    // trialCount
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.nRetries);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    var pct = (row.nCorrectInitial / parseFloat(row.setSize)) * 100
+
+    cell = document.createElement("td");
+    cellText = document.createTextNode(pct.toFixed(2));
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.sessionDuration);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    cell = document.createElement("td");
+    cellText = document.createTextNode(row.errCount);
+    cell.appendChild(cellText);
+    newRow.appendChild(cell);
+
+    tableBody.appendChild(newRow);
+
+    data.push([
+      row.sessionDate,
+      row.target,
+      row.setSize,
+      row.set,
+      row.nCorrectInitial,
+      row.errCount,
+      row.sessionDuration,
+      pct.toFixed(2),
+    ]);
+    
+    rowId++;
+  });
+
+  //updateFigure();
 }
 
 /*
@@ -507,166 +648,7 @@ function updateFigure1s2c() {
   window.myLine.update();
 }
 
-function updateTable(prePlotter) {
-  var tableBody = document.getElementById("tableBody");
-  tableBody.innerHTML = "";
 
-  var rowId = 0;
-
-  data = [];
-  data.push([
-    "Date",
-    "Difficulty",
-    "Trial Count",
-    "Accuracy",
-    "s1c1",
-    "s1c2",
-    "s2c1",
-    "s2c2",
-    "corLeft",
-    "corRight",
-    "wrngLeft",
-    "wrngRight",
-    "skipped",
-    "correct",
-    "incorrect",
-    "s1corL",
-    "s1corR",
-    "s1errL",
-    "s1errR",
-    "s2corL",
-    "s2corR",
-    "s2errL",
-    "s2errR",
-    "latencyCorrect",
-    "latencyIncorrect",
-  ]);
-
-  prePlotter.forEach(function (row) {
-    var newRow = document.createElement("tr");
-
-    // Session Num
-    var cell = document.createElement("td");
-    var cellText = document.createTextNode(rowId);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // Session Date
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.sessionDate);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // Display time
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.displayTime);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // difficultyLevel
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.difficultyLevel);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // trialCount
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.trialCount);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // correctAnswers
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.correctAnswers);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    // correctAnswers
-    cell = document.createElement("td");
-    cellText = document.createTextNode(row.wrongAnswers);
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    // percentage correct
-    cell = document.createElement("td");
-    cellText = document.createTextNode(
-      (
-        (row.correctAnswers / (row.wrongAnswers + row.correctAnswers)) *
-        100
-      ).toFixed(2)
-    );
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    var logD =
-      (Math.log10(
-        (row.s1c1 + row.s1c2 + 0.25) / (row.s1errL + row.s1errR + 0.25)
-      ) *
-        Math.log10(
-          (row.s2c1 + row.s2c2 + 0.25) / (row.s2errL + row.s2errR + 0.25)
-        )) /
-      2.0;
-
-    // log d
-    cell = document.createElement("td");
-    cellText = document.createTextNode(logD.toFixed(2));
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    var logB =
-      0.5 *
-      Math.log10(
-        ((row.corLeft + constant) / (row.corRght + constant)) *
-          ((row.errLeft + constant) / (row.errRght + constant))
-      );
-
-    // log b
-    cell = document.createElement("td");
-    cellText = document.createTextNode(logB.toFixed(2));
-    cell.appendChild(cellText);
-    newRow.appendChild(cell);
-
-    tableBody.appendChild(newRow);
-
-    data.push([
-      row.sessionDate,
-      row.difficultyLevel,
-      row.trialCount,
-      (row.correctAnswers / (row.wrongAnswers + row.correctAnswers)) * 100,
-      row.s1c1,
-      row.s1c2,
-      row.s2c1,
-      row.s2c2,
-      row.corLeft,
-      row.corRght,
-      row.errLeft,
-      row.errRght,
-      row.skippedTrials,
-      row.correctAnswers,
-      row.wrongAnswers,
-      row.s1corL,
-      row.s1corR,
-      row.s1errL,
-      row.s1errR,
-      row.s2corL,
-      row.s2corR,
-      row.s2errL,
-      row.s2errR,
-      row.latencyCorrect,
-      row.latencyIncorrect,
-    ]);
-
-    rowId++;
-  });
-
-  updateFigure();
-}
 
 function updateTable1s1c(prePlotter) {
   var tableBody = document.getElementById("tableBody");
@@ -1108,65 +1090,4 @@ firebase.auth().onAuthStateChanged((user) => {
 
 */
 
-$(document).on("click", ".open-sessionDialog", function () {
-  var pId = $(this).data("id");
-  var pTag = $(this).data("participanttag");
-  var pTgt = $(this).data("participanttarget");
-  var pSS = $(this).data("participantsetsize");
-  var pNum = $(this).data("participantset");
-
-  $(".modal-body #editParticipantTag").val(pTag);
-  $(".modal-body #editParticipantTarget").val(pTgt);
-  $(".modal-body #editParticipantSetSize").val(pSS);
-  $(".modal-body #editParticipantSet").val(pNum);
-  $(".modal-body #editParticipantID").val(pId);
-
-  $("#editParticipantSave").click(null);
-  $("#editParticipantSave")
-    .unbind()
-    .click(function () {
-      var pTag = document.getElementById("editParticipantTag").value;
-      var pTgt = document.getElementById("editParticipantTarget").value;
-      var pSS = document.getElementById("editParticipantSetSize").value;
-      var pNum = document.getElementById("editParticipantSet").value;
-
-      if (!$.isNumeric(pSS)) {
-        alert("Duration (seconds) must be a number.");
-        return;
-      }
-
-      if (!$.isNumeric(pNum)) {
-        alert("Trials (counts) must be a number.");
-        return;
-      }
-
-      pSS = parseInt(pSS);
-      pNum = parseInt(pNum);
-
-      const user = firebase.auth().currentUser;
-      const path = getStudentCollectionPath(user["uid"]) + "/" + pId;
-
-      db.doc(path)
-        .update({
-          name: pTag,
-          set: pNum,
-          setSize: pSS,
-          target: pTgt,
-        })
-        .then(function (docRef) {
-          $("#editParticipantModal").modal("hide");
-
-          document.getElementById("editParticipantTag").value = "";
-          document.getElementById("editParticipantTarget").value = "";
-          document.getElementById("editParticipantSetSize").value = "";
-          document.getElementById("editParticipantSet").value = "";
-          document.getElementById("editParticipantID").value = "";
-        })
-        .catch(function (err) {
-          alert(err);
-        });
-
-      $("#editParticipantSave").click(null);
-    });
-});
 //})
