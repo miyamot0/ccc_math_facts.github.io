@@ -1,0 +1,368 @@
+<html>
+  <head>
+    <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-firestore.js"></script>
+
+    <!-- jQuery -->
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+
+    <!-- Material Design fonts -->
+    <link rel="stylesheet" href="css/roboto.css" type="text/css" />
+    <link href="css/icon.css" rel="stylesheet" />
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Bootstrap Material Design -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/bootstrap-material-design.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="css/ripples.min.css" />
+
+    <!-- Template styles -->
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <!--Navbar-->
+      <div class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button
+              type="button"
+              class="navbar-toggle"
+              data-toggle="collapse"
+              data-target=".navbar-responsive-collapse"
+            >
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Cover Copy Compare Tracking</a>
+          </div>
+          <div class="navbar-collapse collapse navbar-responsive-collapse">
+            <ul class="nav navbar-nav">
+              <li class="authElements" style="display: none">
+                <a
+                  href="#"
+                  data-toggle="modal"
+                  data-target="#addParticipantModal"
+                  >Add Participant</a
+                >
+              </li>
+              <li class="authElements" style="display: none">
+                <a href="javascript:download()">Download</a>
+              </li>
+              <li class="authElements" style="display: none">
+                <a href="javascript:logout()">Logout</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!--/.Navbar-->
+    </header>
+
+    <main>
+      <div class="container">
+        <!--Main Display row-->
+        <div id="display_block" class="row authElements" style="display: none">
+          <div class="col-md-12">
+            <div class="jumbotron">
+              <h2 class="h2-responsive">Cover Copy Compare Dashboard</h2>
+              <br />
+              <p class="lead">
+                At present, a total of
+                <span id="nParticipantSpan">... participants</span> are active.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!--/.Main Display row-->
+
+        <!--Participant Display row-->
+        <div
+          id="participant_block"
+          class="row authElements"
+          style="display: none"
+        >
+          <div class="col-md-12">
+            <div class="jumbotron">
+              <h2 class="h2-responsive">Current Participants:</h2>
+              <br />
+              <div id="participantDiv"></div>
+              <div id="tableDiv2">
+                <table class="table" id="mTableRef2">
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Target</th>
+                      <th scope="col">Set Size</th>
+                      <th scope="col">Set Number</th>
+                      <th scope="col">ID</th>
+                      <th scope="col">Show Progress</th>
+                      <th scope="col">Edit Session</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody2"></tbody>
+                </table>
+              </div>
+              <br />
+              <h2 class="h2-responsive">
+                Participant Summary: <span id="tagParticipantSpan"></span>
+              </h2>
+              <br />
+              <div id="tableDiv">
+                <table class="table" id="mTableRef">
+                  <thead>
+                    <tr>
+                      <th scope="col">Session</th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Display</th>
+                      <th scope="col">Difficulty</th>
+                      <th scope="col">Trials</th>
+                      <th scope="col">Correct</th>
+                      <th scope="col">Incorrect</th>
+                      <th scope="col">Percentage</th>
+                      <th scope="col">Log d</th>
+                      <th scope="col">Log b</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody"></tbody>
+                </table>
+              </div>
+              <div style="width: 100%">
+                <div>
+                  <canvas id="canvas"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--/.Participant Display row-->
+
+        <!-- Login row -->
+        <div id="login_block" class="row">
+          <div class="col-md-6 col-md-offset-3">
+            <div class="well" style="text-align: center">
+              <h2 class="h2-responsive">CCC Project Login</h2>
+
+              <input type="email" placeholder="Email..." id="email_field" />
+              <br />
+              <input
+                type="password"
+                placeholder="Password..."
+                id="password_field"
+              />
+              <br />
+
+              <button onclick="login()">Login to Account</button>
+            </div>
+          </div>
+        </div>
+        <!--/.Login row -->
+      </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="addParticipantModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+            <h4 class="modal-title">Add New Participant</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="addParticipantTag" class="bmd-label-floating"
+                >Participant Name</label
+              >
+              <input type="text" class="form-control" id="addParticipantTag" />
+            </div>
+            <div class="form-group">
+              <label for="addParticipantTarget" class="bmd-label-floating"
+                >Target</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="addParticipantTarget"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="addParticipantSetSize" class="bmd-label-floating"
+                >Set Size (8, 16, 24)</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="addParticipantSetSize"
+              />
+            </div>
+            <div class="form-group">
+              <label for="addParticipantSetNumber" class="bmd-label-floating"
+                >Set #</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="addParticipantSetNumber"
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-default"
+              onclick="addNewParticipant();"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- /.Modal content -->
+    </div>
+    <!-- /.Modal -->
+
+    <!-- Modal -->
+    <div id="editParticipantModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+            <h4 class="modal-title">Edit Session Conditions</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="editParticipantTag" class="bmd-label-floating"
+                >Participant ID</label
+              >
+              <input type="text" class="form-control" id="editParticipantTag" />
+            </div>
+            <div class="form-group">
+              <label for="editParticipantDescription" class="bmd-label-floating"
+                >Participant description</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="editParticipantDescription"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editParticipantDifficulty" class="bmd-label-floating"
+                >Difficulty Level (1-50)</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="editParticipantDifficulty"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editParticipantDuration" class="bmd-label-floating"
+                >Display Time (Seconds)</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="editParticipantDuration"
+              />
+            </div>
+            <div class="form-group">
+              <label for="editParticipantTrials" class="bmd-label-floating"
+                >Trial Count (n Trials)</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="editParticipantTrials"
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-default"
+              id="editParticipantSave"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- /.Modal content -->
+    </div>
+    <!-- /.Modal -->
+
+    <script>
+      // Initialize Firebase
+      const config = {
+        apiKey: "AIzaSyDlyXTl-vh5cKXM8899hYk9de6Njuwsc3w",
+        authDomain: "covcopcompmathfact.firebaseapp.com",
+        projectId: "covcopcompmathfact",
+        storageBucket: "covcopcompmathfact.appspot.com",
+        messagingSenderId: "206486473497",
+        appId: "1:206486473497:web:4b34e91ad8534338ca5388",
+        measurementId: "G-7QE2GHRE1E",
+      };
+      firebase.initializeApp(config);
+      const db = firebase.firestore();
+      db.settings({ timestampsInSnapshots: true });
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          console.log("signed in");
+          hideAuthContent();
+
+          const path = getStudentCollectionPath(user["uid"]);
+
+          var studentCollRef = db.collection(path);
+
+          studentCollRef.onSnapshot(snapshotUpdateCall);
+        } else {
+          console.log("no auth");
+          showAuthContent();
+        }
+      });
+    </script>
+    <script src="app.js"></script>
+
+    <!-- Auth and links -->
+    <script src="js/app.js"></script>
+
+    <!-- Bootstrap tooltips -->
+    <script src="js/tether.min.js"></script>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Material Design Javascript -->
+    <script src="js/ripples.min.js"></script>
+    <script src="js/material.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $.material.init();
+      });
+    </script>
+  </body>
+</html>
