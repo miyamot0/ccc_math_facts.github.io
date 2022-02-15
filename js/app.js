@@ -137,10 +137,9 @@ function snapshotUpdateCall(querySnapshot) {
 
       aTag.setAttribute("data-id", doc.id);
       aTag.setAttribute("data-participantTag", data.name);
-      aTag.setAttribute("data-descriptionTag", data.target);
-      aTag.setAttribute("data-difficultyLevel", data.setSize);
-      aTag.setAttribute("data-displayTime", data.set);
-      aTag.setAttribute("data-trialNumbers", 0);
+      aTag.setAttribute("data-participantTarget", data.target);
+      aTag.setAttribute("data-participantSetSize", data.setSize);
+      aTag.setAttribute("data-participantSet", data.set);
 
       aTag.innerHTML = "Edit Session";
 
@@ -1116,70 +1115,58 @@ firebase.auth().onAuthStateChanged((user) => {
 */
 
 $(document).on("click", ".open-sessionDialog", function () {
-  /*
+  var pId = $(this).data("id");
   var pTag = $(this).data("participanttag");
-
-  var recordId = $(this).data("id");
-  var pDesc = $(this).data("descriptiontag");
-  var pDiff = $(this).data("difficultylevel");
-  var pTime = $(this).data("displaytime");
-  var pSessions = $(this).data("trialnumbers");
+  var pTgt = $(this).data("participanttarget");
+  var pSS = $(this).data("participantsetsize");
+  var pNum = $(this).data("participantset");
 
   $(".modal-body #editParticipantTag").val(pTag);
-  $(".modal-body #editParticipantDescription").val(pDesc);
-  $(".modal-body #editParticipantDifficulty").val(pDiff);
-  $(".modal-body #editParticipantDuration").val(pTime);
-  $(".modal-body #editParticipantTrials").val(pSessions);
+  $(".modal-body #editParticipantTarget").val(pTgt);
+  $(".modal-body #editParticipantSetSize").val(pSS);
+  $(".modal-body #editParticipantSet").val(pNum);
+  $(".modal-body #editParticipantID").val(pId);
 
   $("#editParticipantSave").click(null);
   $("#editParticipantSave")
     .unbind()
     .click(function () {
-      var pId = document.getElementById("editParticipantTag").value;
-      var pDes = document.getElementById("editParticipantDescription").value;
-      var pDiff = document.getElementById("editParticipantDifficulty").value;
-      var pDur = document.getElementById("editParticipantDuration").value;
-      var pTrls = document.getElementById("editParticipantTrials").value;
+      var pTag = document.getElementById("editParticipantTag").value;
+      var pTgt = document.getElementById("editParticipantTarget").value;
+      var pSS = document.getElementById("editParticipantSetSize").value;
+      var pNum = document.getElementById("editParticipantSet").value;
 
-      if (!$.isNumeric(pDiff)) {
-        alert("Difficulty must be a number.");
-        return;
-      }
-
-      if (!$.isNumeric(pDur)) {
+      if (!$.isNumeric(pSS)) {
         alert("Duration (seconds) must be a number.");
         return;
       }
 
-      if (!$.isNumeric(pTrls)) {
+      if (!$.isNumeric(pNum)) {
         alert("Trials (counts) must be a number.");
         return;
       }
 
-      pDiff = parseInt(pDiff);
-      pDur = parseInt(pDur);
-      pTrls = parseInt(pTrls);
+      pSS = parseInt(pSS);
+      pNum = parseInt(pNum);
 
       const user = firebase.auth().currentUser;
-      const path = buildParticipantPath(user["uid"]) + "/" + recordId;
+      const path = getStudentCollectionPath(user["uid"]) + "/" + pId;
 
-      firestore
-        .doc(path)
+      db.doc(path)
         .update({
-          descriptionTag: pDes,
-          difficultyLevel: pDiff,
-          displayTime: pDur,
-          participantTag: pId,
-          trialNumbers: pTrls,
+          name: pTag,
+          set: pNum,
+          setSize: pSS,
+          target: pTgt,
         })
         .then(function (docRef) {
           $("#editParticipantModal").modal("hide");
 
           document.getElementById("editParticipantTag").value = "";
-          document.getElementById("editParticipantDescription").value = "";
-          document.getElementById("editParticipantDifficulty").value = "";
-          document.getElementById("editParticipantDuration").value = "";
-          document.getElementById("editParticipantTrials").value = "";
+          document.getElementById("editParticipantTarget").value = "";
+          document.getElementById("editParticipantSetSize").value = "";
+          document.getElementById("editParticipantSet").value = "";
+          document.getElementById("editParticipantID").value = "";
         })
         .catch(function (err) {
           alert(err);
@@ -1187,6 +1174,5 @@ $(document).on("click", ".open-sessionDialog", function () {
 
       $("#editParticipantSave").click(null);
     });
-    */
 });
 //})
