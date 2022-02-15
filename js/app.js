@@ -115,11 +115,7 @@ function snapshotUpdateCall(querySnapshot) {
       aTag = document.createElement("a");
       aTag.setAttribute(
         "href",
-        'javascript:updateParticipant("' +
-          doc.id +
-          '","' +
-          data.participantTag +
-          '");'
+        'javascript:updateParticipant("' + doc.id + '","' + data.name + '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
       aTag.innerHTML = "Load Progress";
@@ -195,23 +191,28 @@ function addNewParticipant() {
 }
 
 function updateParticipant(tag, name) {
+  const user = firebase.auth().currentUser;
+  const currPath =
+    "performanceCollection/" +
+    user["uid"] +
+    "/Math Facts-Addition/students/" +
+    tag;
+
+  if (oldListenerPath != null || oldListenerPath == currPath) {
+    var unsubscribe = db.collection(oldListenerPath).onSnapshot(function () {});
+    unsubscribe();
+  }
+
+  oldListenerPath = currPath;
+
+  console.log(currPath);
+
+  var docRef = db.collection(currPath);
+
+  document.getElementById("tagParticipantSpan").innerHTML = name;
+
   /*
-    const user = firebase.auth().currentUser;
-    const currPath = buildDocumentPath(user["uid"], tag);
-  
-    if (oldListenerPath != null || oldListenerPath == currPath) {
-      var unsubscribe = firestore
-        .collection(oldListenerPath)
-        .onSnapshot(function () {});
-      unsubscribe();
-    }
-  
-    oldListenerPath = currPath;
-  
-    var docRef = firestore.collection(currPath);
-  
-    document.getElementById("tagParticipantSpan").innerHTML = name;
-  
+
     docRef.onSnapshot(function (querySnapshot) {
       var tableBody = document.getElementById("tableBody");
       tableBody.innerHTML = "";
@@ -1062,13 +1063,6 @@ function updateParticipant1s2c(tag, name) {
 function editParticipant() {
   console.log("editing");
 }
-
-
-
-
-
-
-
 
 */
 
