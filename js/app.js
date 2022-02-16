@@ -110,7 +110,7 @@ function onTeacherUpdateCall(querySnapshot) {
         currentUserId = selRef.value;
 
         const path = getStudentCollectionPath(currentUserId);
-        var studentCollRef = db.collection(path).onSnapshot(snapshotUpdateCall);
+        studentCollRef = db.collection(path).onSnapshot(snapshotUpdateCall);
       } else {
         currentUserId = null;
       }
@@ -261,15 +261,11 @@ function addNewParticipant() {
 }
 
 function updateParticipant(tag, name) {
-  const user = firebase.auth().currentUser;
   const currPath =
-    "mainCollection/" +
+    "performanceCollection/" +
     currentUserId +
     "/Math Facts-Addition/students/" +
     tag;
-
-  console.log(currentUserId);
-  console.log(currPath);
 
   if (oldListenerPath != null || oldListenerPath == currPath) {
     var unsubscribe = db.collection(oldListenerPath).onSnapshot(function () {});
@@ -287,10 +283,21 @@ function updateParticipant(tag, name) {
       ...doc.data(),
     }));
 
-    updateTable(data, name);
+    var data2 = data.sort(function(a,b){
+      // Turn your strings into dates, and then subtract them
+      // to get a value that is either negative, positive, or zero.
+      return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
+    });
+
+    updateTable(data2, name);
   });
 }
 
+array.sort(function(a,b){
+  // Turn your strings into dates, and then subtract them
+  // to get a value that is either negative, positive, or zero.
+  return new Date(b.dateTimeStart) - new Date(a.dateTimeStart);
+});
 
 $(document).on("click", ".open-sessionDialog", function () {
   var pId = $(this).data("id");
