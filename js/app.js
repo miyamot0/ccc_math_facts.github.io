@@ -80,8 +80,19 @@ function buildHeader(size) {
   return size == 1 ? "1 participant" : size + " participants";
 }
 
-// Teacher update call (re-fresh students)
+// Student listener call
 function onTeacherUpdateCall(querySnapshot) {
+  document.getElementById("adminTag").innerHTML = "";
+
+  if (!querySnapshot.empty) {
+    db.collection(getStudentCollectionPath(currentUserId)).onSnapshot(
+      snapshotUpdateCall
+    );
+  }
+}
+
+// Teacher update call (re-fresh students)
+function onAdminUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
     var selectHolderRef = document.getElementById("selectHolder");
     selectHolderRef.innerHTML = "";

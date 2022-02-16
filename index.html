@@ -81,7 +81,7 @@
             <div class="jumbotron">
               <h2 class="h2-responsive">Cover Copy Compare Dashboard</h2>
               <br />
-              <p class="lead">Teachers in system:</p>
+              <p class="lead" id="adminTag">Teachers in system:</p>
               <p id="selectHolder" class="lead"></p>
               <p class="lead">
                 At present, a total of
@@ -383,14 +383,25 @@
       // Lazy globals
       var currentUserId = null;
       var currentTeacherId = null;
-
       var teacherListenerPath = null;
 
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           hideAuthContent();
           teacherListenerPath = getCollectionPath();
-          db.collection(teacherListenerPath).onSnapshot(onTeacherUpdateCall);
+
+          db.collection(teacherListenerPath).onSnapshot(
+            (querySnapshot) => {
+              onAdminUpdateCall(querySnapshot);
+            },
+            (error) => {
+              currentUserId = user.uid;
+              teacherListenerPath = getStudentCollectionPath(currentUserId);
+              db.collection(teacherListenerPath).onSnapshot(
+                onTeacherUpdateCall
+              );
+            }
+          );
         } else {
           showAuthContent();
         }
