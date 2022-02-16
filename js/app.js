@@ -539,7 +539,7 @@ function updateFigure(name) {
       y: parseFloat(row.cells[6].innerText),
     });
 
-    mLabels.push("" + i);
+    mLabels.push("" + (i + 1));
   }
 
   var config = {
