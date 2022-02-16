@@ -193,40 +193,61 @@
           <div class="modal-body">
             <div class="form-group">
               <label for="addParticipantTag" class="bmd-label-floating"
-                >Participant Name</label
+                >Enter student name/tag</label
               >
               <input type="text" class="form-control" id="addParticipantTag" />
             </div>
             <div class="form-group">
-              <label for="addParticipantTarget" class="bmd-label-floating"
-                >Target</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="addParticipantTarget"
-              />
+              <div class="form-group">
+                <label for="addParticipantTarget" class="bmd-label-floating"
+                  >Select targeted skill (e.g., math, subtraction)</label
+                >
+
+                <select class="form-control" id="addParticipantTarget">
+                  <option>Math Facts-Addition</option>
+                  <option>Math Facts-Subtraction</option>
+                  <option>Math Facts-Multiplication</option>
+                  <option>Math Facts-Division</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
               <label for="addParticipantSetSize" class="bmd-label-floating"
-                >Set Size (8, 16, 24)</label
+                >Select Set Size (i.e., number of items in each session)</label
               >
-              <input
-                type="text"
-                class="form-control"
-                id="addParticipantSetSize"
-              />
+
+              <select class="form-control" id="addParticipantSetSize">
+                <option>8</option>
+                <option>16</option>
+                <option>24</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="addParticipantSetNumber" class="bmd-label-floating"
-                >Set #</label
+                >Select Set Number (i.e., block of varying items)</label
               >
-              <input
-                type="text"
-                class="form-control"
-                id="addParticipantSetNumber"
-              />
+
+              <select class="form-control" id="addParticipantSetNumber">
+                <option>0</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+                <option>16</option>
+                <option>17</option>
+              </select>
             </div>
           </div>
           <div class="modal-footer">
@@ -281,13 +302,6 @@
               <label for="editParticipantSetSize" class="bmd-label-floating"
                 >Select Set Size (i.e., number of items in each session)</label
               >
-              <!--
-              <input
-                type="text"
-                class="form-control"
-                id="editParticipantSetSize"
-              />
-              -->
 
               <select class="form-control" id="editParticipantSetSize">
                 <option>8</option>
@@ -299,10 +313,6 @@
               <label for="editParticipantSet" class="bmd-label-floating"
                 >Select Set Number (i.e., block of varying items)</label
               >
-
-              <!--
-              <input type="text" class="form-control" id="editParticipantSet" />
-              -->
 
               <select class="form-control" id="editParticipantSet">
                 <option>0</option>
@@ -373,15 +383,14 @@
       // Lazy globals
       var currentUserId = null;
       var currentTeacherId = null;
-      var totalCollRef = null;
+
+      var teacherListenerPath = null;
 
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           hideAuthContent();
-
-          totalCollRef = db
-            .collection(getCollectionPath())
-            .onSnapshot(onTeacherUpdateCall);
+          teacherListenerPath = getCollectionPath();
+          db.collection(teacherListenerPath).onSnapshot(onTeacherUpdateCall);
         } else {
           showAuthContent();
         }

@@ -1,3 +1,4 @@
+// Login function, initial entry point
 function login() {
   var userEmail = document.getElementById("email_field").value;
   var userPass = document.getElementById("password_field").value;
@@ -6,33 +7,32 @@ function login() {
     .auth()
     .signInWithEmailAndPassword(userEmail, userPass)
     .catch(function (error) {
-      var errorCode = error.code;
-      var errorMessage = error.message;
-
-      window.alert("Error : " + errorMessage);
+      window.alert("Error : " + error.message);
     });
 }
 
+// Logout function, exit point
 function logout() {
-  totalCollRef();
+  if (teacherListenerPath != null) {
+    var unsubscribe = db
+      .collection(teacherListenerPath)
+      .onSnapshot(function () {});
+    unsubscribe();
+  }
 
   document.getElementById("participantDiv").innerHTML = "";
-  var tableBody = document.getElementById("tableBody2");
-  tableBody.innerHTML = "";
-
-  var tableBody = document.getElementById("tableBody");
-  tableBody.innerHTML = "";
-
-  var selectHolderRef = document.getElementById("selectHolder");
-  selectHolderRef.innerHTML = "";
-
+  document.getElementById("selectHolder").innerHTML = "";
+  document.getElementById("tableBody").innerHTML = "";
+  document.getElementById("tableBody2").innerHTML = "";
   document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
 
   clearFigure();
 
+  // Last, since triggers listener
   firebase.auth().signOut();
 }
 
+// Hide auth content if authorized
 function hideAuthContent() {
   document.getElementById("login_block").style.display = "none";
 
@@ -45,6 +45,7 @@ function hideAuthContent() {
   }
 }
 
+// Hide auth content if authorized
 function showAuthContent() {
   document.getElementById("login_block").style.display = "block";
 
@@ -57,18 +58,29 @@ function showAuthContent() {
   }
 }
 
+// Path to primary collection
 function getCollectionPath() {
   return "mainCollection";
 }
 
+// Path to student information
 function getStudentCollectionPath(id) {
   return "mainCollection/" + id + "/students";
 }
 
+// Path to student performances
+function getStudentPerformanceCollectionPath(tag, target) {
+  return (
+    "performanceCollection/" + currentUserId + "/" + target + "/students/" + tag
+  );
+}
+
+// Build header for HUD
 function buildHeader(size) {
   return size == 1 ? "1 participant" : size + " participants";
 }
 
+// Teacher update call (re-fresh students)
 function onTeacherUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
     var selectHolderRef = document.getElementById("selectHolder");
@@ -83,11 +95,9 @@ function onTeacherUpdateCall(querySnapshot) {
     selectList.appendChild(option);
 
     querySnapshot.forEach(function (doc) {
-      const teacher = doc.data();
-
       var option = document.createElement("option");
       option.value = doc.id;
-      option.text = teacher.teacherName;
+      option.text = doc.data().teacherName;
       selectList.appendChild(option);
     });
 
@@ -96,18 +106,17 @@ function onTeacherUpdateCall(querySnapshot) {
 
       if (selRef.value != null) {
         document.getElementById("participantDiv").innerHTML = "";
-        var tableBody = document.getElementById("tableBody2");
-        tableBody.innerHTML = "";
-
-        var tableBody = document.getElementById("tableBody");
-        tableBody.innerHTML = "";
+        document.getElementById("tableBody").innerHTML = "";
+        document.getElementById("tableBody2").innerHTML = "";
 
         clearFigure();
 
+        // Lazy ref to global
         currentUserId = selRef.value;
 
-        const path = getStudentCollectionPath(currentUserId);
-        studentCollRef = db.collection(path).onSnapshot(snapshotUpdateCall);
+        db.collection(getStudentCollectionPath(currentUserId)).onSnapshot(
+          snapshotUpdateCall
+        );
       } else {
         currentUserId = null;
       }
@@ -117,6 +126,7 @@ function onTeacherUpdateCall(querySnapshot) {
   }
 }
 
+// Map student in teacher classroom
 function snapshotUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
     document.getElementById("nParticipantSpan").innerHTML = buildHeader(
@@ -138,7 +148,6 @@ function snapshotUpdateCall(querySnapshot) {
       var cellText = document.createTextNode(data.name);
       cell.appendChild(cellText);
       newRow.appendChild(cell);
-
       tableBody.appendChild(newRow);
 
       ////
@@ -146,7 +155,6 @@ function snapshotUpdateCall(querySnapshot) {
       cellText = document.createTextNode(data.target);
       cell.appendChild(cellText);
       newRow.appendChild(cell);
-
       tableBody.appendChild(newRow);
 
       ////
@@ -154,7 +162,6 @@ function snapshotUpdateCall(querySnapshot) {
       cellText = document.createTextNode(data.setSize);
       cell.appendChild(cellText);
       newRow.appendChild(cell);
-
       tableBody.appendChild(newRow);
 
       ////
@@ -162,14 +169,13 @@ function snapshotUpdateCall(querySnapshot) {
       cellText = document.createTextNode(data.set);
       cell.appendChild(cellText);
       newRow.appendChild(cell);
-
       tableBody.appendChild(newRow);
 
       ////
-      cell = document.createElement("td");
-      cellText = document.createTextNode(doc.id);
-      cell.appendChild(cellText);
-      newRow.appendChild(cell);
+      //cell = document.createElement("td");
+      //cellText = document.createTextNode(doc.id);
+      //cell.appendChild(cellText);
+      //newRow.appendChild(cell);
 
       tableBody.appendChild(newRow);
 
@@ -187,26 +193,21 @@ function snapshotUpdateCall(querySnapshot) {
       );
       aTag.setAttribute("class", "leading btn btn-raised");
       aTag.innerHTML = "Load Progress";
-
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
 
-      //
+      ////
       aTag = document.createElement("a");
       aTag.setAttribute("data-toggle", "modal");
       aTag.setAttribute("data-target", "#editParticipantModal");
-
       aTag.setAttribute("class", "leading btn btn-raised open-sessionDialog");
-
       aTag.setAttribute("data-id", doc.id);
       aTag.setAttribute("data-participantTag", data.name);
       aTag.setAttribute("data-participantTarget", data.target);
       aTag.setAttribute("data-participantSetSize", data.setSize);
       aTag.setAttribute("data-participantSet", data.set);
-
       aTag.innerHTML = "Edit Session";
-
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
@@ -218,8 +219,20 @@ function snapshotUpdateCall(querySnapshot) {
   }
 }
 
+// Insert new participant into record (for relevant teacher)
 function addNewParticipant() {
+  if (currentUserId == null) {
+    window.alert("You must first select a teacher/classroom");
+    return;
+  }
+
   var pName = document.getElementById("addParticipantTag").value;
+
+  if (pName == null || pName.length < 2) {
+    window.alert("Please supply a name or tag for the student");
+    return;
+  }
+
   var pTarget = document.getElementById("addParticipantTarget").value;
   var pSetSize = document.getElementById("addParticipantSetSize").value;
   var pSetNum = document.getElementById("addParticipantSetNumber").value;
@@ -234,18 +247,12 @@ function addNewParticipant() {
     return;
   }
 
-  pSetSize = parseInt(pSetSize);
-  pSetNum = parseInt(pSetNum);
-
-  const user = firebase.auth().currentUser;
-  const path = getStudentCollectionPath(user["uid"]);
-
-  db.collection(path)
+  db.collection(getStudentCollectionPath(currentUserId))
     .add({
       name: pName,
       target: pTarget,
-      set: pSetNum.toString(),
-      setSize: pSetSize.toString(),
+      set: parseInt(pSetNum),
+      setSize: parseInt(pSetSize),
     })
     .then(function (docRef) {
       $("#addParticipantModal").modal("hide");
@@ -260,14 +267,11 @@ function addNewParticipant() {
     });
 }
 
+// Update data table
 function updateParticipant(tag, name, target) {
-  const currPath =
-    "performanceCollection/" +
-    currentUserId +
-    "/" +
-    target +
-    "/students/" +
-    tag;
+  document.getElementById("tagParticipantSpan").innerHTML = name;
+
+  const currPath = getStudentPerformanceCollectionPath(tag, target);
 
   if (oldListenerPath != null || oldListenerPath == currPath) {
     var unsubscribe = db.collection(oldListenerPath).onSnapshot(function () {});
@@ -276,11 +280,7 @@ function updateParticipant(tag, name, target) {
 
   oldListenerPath = currPath;
 
-  var docRef = db.collection(currPath);
-
-  document.getElementById("tagParticipantSpan").innerHTML = name;
-
-  docRef.onSnapshot((snapshot) => {
+  db.collection(currPath).onSnapshot((snapshot) => {
     const data = snapshot.docs.map((doc) => ({
       ...doc.data(),
     }));
@@ -293,6 +293,7 @@ function updateParticipant(tag, name, target) {
   });
 }
 
+// Session editor dialog
 $(document).on("click", ".open-sessionDialog", function () {
   var pId = $(this).data("id");
   var pTag = $(this).data("participanttag");
@@ -315,23 +316,25 @@ $(document).on("click", ".open-sessionDialog", function () {
       var pSS = document.getElementById("editParticipantSetSize").value;
       var pNum = document.getElementById("editParticipantSet").value;
 
+      if (pTag == null || pTag.length < 3) {
+        window.alert("Please supply a name or tag for the student");
+        return;
+      }
+
       if (!$.isNumeric(pSS)) {
-        alert("Duration (seconds) must be a number.");
+        window.alert("Set size must be a number.");
         return;
       }
 
       if (!$.isNumeric(pNum)) {
-        alert("Trials (counts) must be a number.");
+        window.alert("Set number must be a number.");
         return;
       }
 
       pSS = parseInt(pSS);
       pNum = parseInt(pNum);
 
-      const user = firebase.auth().currentUser;
-      const path = getStudentCollectionPath(currentUserId) + "/" + pId;
-
-      db.doc(path)
+      db.doc(getStudentCollectionPath(currentUserId) + "/" + pId)
         .update({
           name: pTag,
           set: pNum,
@@ -355,11 +358,12 @@ $(document).on("click", ".open-sessionDialog", function () {
     });
 });
 
+// Table update methods
 function updateTable(prePlotter, name) {
   var tableBody = document.getElementById("tableBody");
   tableBody.innerHTML = "";
 
-  var rowId = 0;
+  var rowId = 1;
 
   data = [];
   data.push([
@@ -456,12 +460,10 @@ function updateTable(prePlotter, name) {
   updateFigure(name);
 }
 
+// Clear current figure
 function clearFigure() {
   var mLabels = [];
-
   var mPlotData = [];
-
-  var table = document.getElementById("tableBody");
 
   var config = {
     type: "line",
@@ -471,7 +473,7 @@ function clearFigure() {
         {
           label: "Accuracy",
           data: mPlotData,
-          //borderColor: window.chartColors.green,
+          borderColor: "rgb(54, 162, 235)",
           backgroundColor: "rgba(0, 0, 0, 0)",
           fill: false,
           lineTension: 0,
@@ -482,7 +484,7 @@ function clearFigure() {
       responsive: true,
       title: {
         display: true,
-        text: "Participant: " + name,
+        text: "Participant: ",
       },
       tooltips: {
         mode: "index",
@@ -490,7 +492,6 @@ function clearFigure() {
       scales: {
         xAxes: [
           {
-            //type: 'time',
             display: true,
             scaleLabel: {
               display: true,
@@ -526,9 +527,9 @@ function clearFigure() {
   window.myLine.update();
 }
 
+// Updating figure for participant
 function updateFigure(name) {
   var mLabels = [];
-
   var mPlotData = [];
 
   var table = document.getElementById("tableBody");
@@ -549,7 +550,7 @@ function updateFigure(name) {
         {
           label: "Accuracy",
           data: mPlotData,
-          //borderColor: window.chartColors.green,
+          borderColor: "rgb(54, 162, 235)",
           backgroundColor: "rgba(0, 0, 0, 0)",
           fill: false,
           lineTension: 0,
@@ -568,7 +569,6 @@ function updateFigure(name) {
       scales: {
         xAxes: [
           {
-            //type: 'time',
             display: true,
             scaleLabel: {
               display: true,
@@ -604,6 +604,7 @@ function updateFigure(name) {
   window.myLine.update();
 }
 
+// Download current table
 function download() {
   var csv = "";
   data.forEach(function (row) {
