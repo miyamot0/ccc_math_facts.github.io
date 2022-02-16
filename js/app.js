@@ -269,8 +269,6 @@ function updateParticipant(tag, name, target) {
     "/students/" +
     tag;
 
-  console.log(currPath);
-
   if (oldListenerPath != null || oldListenerPath == currPath) {
     var unsubscribe = db.collection(oldListenerPath).onSnapshot(function () {});
     unsubscribe();
@@ -287,11 +285,7 @@ function updateParticipant(tag, name, target) {
       ...doc.data(),
     }));
 
-    console.log(data);
-
     var data2 = data.sort(function (a, b) {
-      // Turn your strings into dates, and then subtract them
-      // to get a value that is either negative, positive, or zero.
       return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
     });
 

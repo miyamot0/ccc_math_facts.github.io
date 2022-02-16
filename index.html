@@ -80,9 +80,7 @@
             <div class="jumbotron">
               <h2 class="h2-responsive">Cover Copy Compare Dashboard</h2>
               <br />
-              <p id="selectHolder" class="lead">
-                
-              </p>
+              <p id="selectHolder" class="lead"></p>
               <p class="lead">
                 At present, a total of
                 <span id="nParticipantSpan">... participants</span> are active.
@@ -266,11 +264,13 @@
               <label for="editParticipantTarget" class="bmd-label-floating"
                 >Current Target</label
               >
-              <input
-                type="text"
-                class="form-control"
-                id="editParticipantTarget"
-              />
+
+              <select class="form-control" id="editParticipantTarget">
+                <option>Math Facts-Addition</option>
+                <option>Math Facts-Subtraction</option>
+                <option>Math Facts-Multiplication</option>
+                <option>Math Facts-Division</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="editParticipantSetSize" class="bmd-label-floating"
@@ -329,7 +329,7 @@
         appId: "1:206486473497:web:4b34e91ad8534338ca5388",
         measurementId: "G-7QE2GHRE1E",
       };
-      
+
       firebase.initializeApp(config);
 
       const db = firebase.firestore();
@@ -344,10 +344,12 @@
           hideAuthContent();
 
           const basePath = getCollectionPath();
-          
+
           const path = getStudentCollectionPath(user["uid"]);
 
-          totalCollRef = db.collection(basePath).onSnapshot(onTeacherUpdateCall);
+          totalCollRef = db
+            .collection(basePath)
+            .onSnapshot(onTeacherUpdateCall);
         } else {
           showAuthContent();
         }
