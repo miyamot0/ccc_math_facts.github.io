@@ -1,5 +1,6 @@
 <html>
   <head>
+    <!-- Firebase loads -->
     <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase-firestore.js"></script>
@@ -80,10 +81,11 @@
             <div class="jumbotron">
               <h2 class="h2-responsive">Cover Copy Compare Dashboard</h2>
               <br />
+              <p class="lead">Teachers in system:</p>
               <p id="selectHolder" class="lead"></p>
               <p class="lead">
                 At present, a total of
-                <span id="nParticipantSpan">... participants</span> are active.
+                <span id="nParticipantSpan">... students</span> are active.
               </p>
             </div>
           </div>
@@ -98,20 +100,22 @@
         >
           <div class="col-md-12">
             <div class="jumbotron">
-              <h2 class="h2-responsive">Current Participants:</h2>
+              <h2 class="h2-responsive">Current Students:</h2>
               <br />
               <div id="participantDiv"></div>
               <div id="tableDiv2">
                 <table class="table" id="mTableRef2">
                   <thead>
                     <tr>
-                      <th scope="col">Name</th>
-                      <th scope="col">Target</th>
-                      <th scope="col">Set Size</th>
+                      <th scope="col">Student</th>
+                      <th scope="col">Target Skill</th>
+                      <th scope="col">Size of Set</th>
                       <th scope="col">Set Number</th>
+                      <!--
                       <th scope="col">ID</th>
-                      <th scope="col">Show Progress</th>
-                      <th scope="col">Edit Session</th>
+                      -->
+                      <th scope="col">View Progress</th>
+                      <th scope="col">Edit Programming</th>
                     </tr>
                   </thead>
                   <tbody id="tableBody2"></tbody>
@@ -119,7 +123,8 @@
               </div>
               <br />
               <h2 class="h2-responsive">
-                Participant Summary: <span id="tagParticipantSpan"></span>
+                Student Progress Monitoring:
+                <span id="tagParticipantSpan"></span>
               </h2>
               <br />
               <div id="tableDiv">
@@ -128,9 +133,9 @@
                     <tr>
                       <th scope="col">Session</th>
                       <th scope="col">Date/Time</th>
-                      <th scope="col">Target</th>
+                      <th scope="col">Target Skill</th>
                       <th scope="col">Set Size</th>
-                      <th scope="col">Set</th>
+                      <th scope="col">Set Number</th>
                       <th scope="col">Retries</th>
                       <th scope="col">% Correct</th>
                       <th scope="col">Time (s)</th>
@@ -320,7 +325,7 @@
 
     <script>
       // Initialize Firebase
-      const config = {
+      firebase.initializeApp({
         apiKey: "AIzaSyDlyXTl-vh5cKXM8899hYk9de6Njuwsc3w",
         authDomain: "covcopcompmathfact.firebaseapp.com",
         projectId: "covcopcompmathfact",
@@ -328,13 +333,12 @@
         messagingSenderId: "206486473497",
         appId: "1:206486473497:web:4b34e91ad8534338ca5388",
         measurementId: "G-7QE2GHRE1E",
-      };
-
-      firebase.initializeApp(config);
+      });
 
       const db = firebase.firestore();
       db.settings({ timestampsInSnapshots: true });
 
+      // Lazy globals
       var currentUserId = null;
       var currentTeacherId = null;
       var totalCollRef = null;
@@ -343,16 +347,15 @@
         if (user) {
           hideAuthContent();
 
-          const basePath = getCollectionPath();
-
-          const path = getStudentCollectionPath(user["uid"]);
-
           totalCollRef = db
-            .collection(basePath)
+            .collection(getCollectionPath())
             .onSnapshot(onTeacherUpdateCall);
         } else {
           showAuthContent();
         }
+
+        document.getElementById("email_field").value = "";
+        document.getElementById("password_field").value = "";
       });
 
       var oldListenerPath = null;
