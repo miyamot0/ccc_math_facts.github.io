@@ -26,9 +26,7 @@ function logout() {
   var selectHolderRef = document.getElementById("selectHolder");
   selectHolderRef.innerHTML = "";
 
-  document.getElementById("nParticipantSpan").innerHTML = buildHeader(
-    '...'
-  );
+  document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
 
   clearFigure();
 
@@ -73,10 +71,9 @@ function buildHeader(size) {
 
 function onTeacherUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
-
     var selectHolderRef = document.getElementById("selectHolder");
     selectHolderRef.innerHTML = "";
-     
+
     var selectList = document.createElement("select");
     selectList.id = "selectListId";
 
@@ -94,7 +91,7 @@ function onTeacherUpdateCall(querySnapshot) {
       selectList.appendChild(option);
     });
 
-    selectHolderRef.addEventListener("change", function() {
+    selectHolderRef.addEventListener("change", function () {
       var selRef = document.getElementById("selectListId");
 
       if (selRef.value != null) {
@@ -122,7 +119,6 @@ function onTeacherUpdateCall(querySnapshot) {
 
 function snapshotUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
-
     document.getElementById("nParticipantSpan").innerHTML = buildHeader(
       querySnapshot.size
     );
@@ -181,7 +177,13 @@ function snapshotUpdateCall(querySnapshot) {
       aTag = document.createElement("a");
       aTag.setAttribute(
         "href",
-        'javascript:updateParticipant("' + doc.id + '","' + data.name + '");'
+        'javascript:updateParticipant("' +
+          doc.id +
+          '","' +
+          data.name +
+          '","' +
+          data.target +
+          '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
       aTag.innerHTML = "Load Progress";
@@ -212,9 +214,7 @@ function snapshotUpdateCall(querySnapshot) {
       tableBody.appendChild(newRow);
     });
   } else {
-    document.getElementById("nParticipantSpan").innerHTML = buildHeader(
-      '...'
-    );
+    document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
   }
 }
 
@@ -260,12 +260,16 @@ function addNewParticipant() {
     });
 }
 
-function updateParticipant(tag, name) {
+function updateParticipant(tag, name, target) {
   const currPath =
     "performanceCollection/" +
     currentUserId +
-    "/Math Facts-Addition/students/" +
+    "/" +
+    target +
+    "/students/" +
     tag;
+
+  console.log(currPath);
 
   if (oldListenerPath != null || oldListenerPath == currPath) {
     var unsubscribe = db.collection(oldListenerPath).onSnapshot(function () {});
@@ -283,7 +287,9 @@ function updateParticipant(tag, name) {
       ...doc.data(),
     }));
 
-    var data2 = data.sort(function(a,b){
+    console.log(data);
+
+    var data2 = data.sort(function (a, b) {
       // Turn your strings into dates, and then subtract them
       // to get a value that is either negative, positive, or zero.
       return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
@@ -292,12 +298,6 @@ function updateParticipant(tag, name) {
     updateTable(data2, name);
   });
 }
-
-array.sort(function(a,b){
-  // Turn your strings into dates, and then subtract them
-  // to get a value that is either negative, positive, or zero.
-  return new Date(b.dateTimeStart) - new Date(a.dateTimeStart);
-});
 
 $(document).on("click", ".open-sessionDialog", function () {
   var pId = $(this).data("id");
@@ -418,7 +418,7 @@ function updateTable(prePlotter, name) {
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
-    var pct = (row.nCorrectInitial / parseFloat(row.setSize)) * 100
+    var pct = (row.nCorrectInitial / parseFloat(row.setSize)) * 100;
 
     cell = document.createElement("td");
     cellText = document.createTextNode(pct.toFixed(2));
@@ -430,8 +430,8 @@ function updateTable(prePlotter, name) {
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
-    var nMin = row.sessionDuration/60;
-    var cpm = (row.nCorrectInitial / nMin) * 100
+    var nMin = row.sessionDuration / 60;
+    var cpm = (row.nCorrectInitial / nMin) * 100;
 
     cell = document.createElement("td");
     cellText = document.createTextNode(cpm.toFixed(2));
@@ -455,7 +455,7 @@ function updateTable(prePlotter, name) {
       row.sessionDuration,
       pct.toFixed(2),
     ]);
-    
+
     rowId++;
   });
 
@@ -481,7 +481,7 @@ function clearFigure() {
           backgroundColor: "rgba(0, 0, 0, 0)",
           fill: false,
           lineTension: 0,
-        }
+        },
       ],
     },
     options: {
@@ -529,7 +529,7 @@ function clearFigure() {
   var ctx = document.getElementById("canvas").getContext("2d");
 
   window.myLine = new Chart(ctx, config);
-  window.myLine.update();  
+  window.myLine.update();
 }
 
 function updateFigure(name) {
@@ -559,7 +559,7 @@ function updateFigure(name) {
           backgroundColor: "rgba(0, 0, 0, 0)",
           fill: false,
           lineTension: 0,
-        }
+        },
       ],
     },
     options: {
@@ -622,5 +622,4 @@ function download() {
   hiddenElement.target = "_blank";
   hiddenElement.download = "download.csv";
   hiddenElement.click();
-
 }
