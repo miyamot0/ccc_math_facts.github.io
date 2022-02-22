@@ -218,6 +218,10 @@ function snapshotUpdateCall(querySnapshot) {
       aTag.setAttribute("data-participantTarget", data.target);
       aTag.setAttribute("data-participantSetSize", data.setSize);
       aTag.setAttribute("data-participantSet", data.set);
+      aTag.setAttribute(
+        "data-participantPresentation",
+        data.preferredOrientation
+      );
       aTag.innerHTML = "Edit Session";
       cell = document.createElement("td");
       cell.appendChild(aTag);
@@ -247,6 +251,8 @@ function addNewParticipant() {
   var pTarget = document.getElementById("addParticipantTarget").value;
   var pSetSize = document.getElementById("addParticipantSetSize").value;
   var pSetNum = document.getElementById("addParticipantSetNumber").value;
+  var pPrf = document.getElementById("addPresentation").value;
+  var noPref = pPrf == "No Preference";
 
   if (!$.isNumeric(pSetSize)) {
     alert("Difficulty must be a number.");
@@ -264,6 +270,8 @@ function addNewParticipant() {
       target: pTarget,
       set: parseInt(pSetNum),
       setSize: parseInt(pSetSize),
+      preferredOrientation: pPrf,
+      hasPreference: !noPref,
     })
     .then(function (docRef) {
       $("#addParticipantModal").modal("hide");
@@ -272,6 +280,7 @@ function addNewParticipant() {
       document.getElementById("addParticipantTarget").value = "";
       document.getElementById("addParticipantSetSize").value = "";
       document.getElementById("addParticipantSetNumber").value = "";
+      document.getElementById("addPresentation").value = "";
     })
     .catch(function (err) {
       alert(err);
@@ -311,12 +320,14 @@ $(document).on("click", ".open-sessionDialog", function () {
   var pTgt = $(this).data("participanttarget");
   var pSS = $(this).data("participantsetsize");
   var pNum = $(this).data("participantset");
+  var pPrf = $(this).data("participantpresentation");
 
   $(".modal-body #editParticipantTag").val(pTag);
   $(".modal-body #editParticipantTarget").val(pTgt);
   $(".modal-body #editParticipantSetSize").val(pSS);
   $(".modal-body #editParticipantSet").val(pNum);
   $(".modal-body #editParticipantID").val(pId);
+  $(".modal-body #editPresentation").val(pPrf);
 
   $("#editParticipantSave").click(null);
   $("#editParticipantSave")
@@ -326,6 +337,7 @@ $(document).on("click", ".open-sessionDialog", function () {
       var pTgt = document.getElementById("editParticipantTarget").value;
       var pSS = document.getElementById("editParticipantSetSize").value;
       var pNum = document.getElementById("editParticipantSet").value;
+      var pPrf = document.getElementById("editPresentation").value;
 
       if (pTag == null || pTag.length < 3) {
         window.alert("Please supply a name or tag for the student");
@@ -345,12 +357,16 @@ $(document).on("click", ".open-sessionDialog", function () {
       pSS = parseInt(pSS);
       pNum = parseInt(pNum);
 
+      var noPref = pPrf == "No Preference";
+
       db.doc(getStudentCollectionPath(currentUserId) + "/" + pId)
         .update({
           name: pTag,
           set: pNum,
           setSize: pSS,
           target: pTgt,
+          preferredOrientation: pPrf,
+          hasPreference: !noPref,
         })
         .then(function (docRef) {
           $("#editParticipantModal").modal("hide");
@@ -359,6 +375,7 @@ $(document).on("click", ".open-sessionDialog", function () {
           document.getElementById("editParticipantTarget").value = "";
           document.getElementById("editParticipantSetSize").value = "";
           document.getElementById("editParticipantSet").value = "";
+          document.getElementById("editParticipantID").value = "";
           document.getElementById("editParticipantID").value = "";
         })
         .catch(function (err) {
