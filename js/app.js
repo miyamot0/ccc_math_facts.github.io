@@ -516,7 +516,7 @@ function clearFigure() {
       ],
     },
     options: {
-      //responsive: true,
+      responsive: true,
       plugins: {
         title: {
           display: true,
@@ -565,10 +565,30 @@ function updateFigure(name) {
   var mLabels = [];
   var mPlotData = [];
 
+  //var mmt = moment(date)
+
+  var min = null;
+  var max = null;
+
   var table = document.getElementById("tableBody");
   for (var i = 0, row; (row = table.rows[i]); i++) {
+
+    var dateString = row.cells[1].innerText;
+    dateString = dateString.split('.')[0];
+
+    var momentObj = moment(dateString);
+
+    if (min == null || max == null) {
+      min = momentObj;
+      max = momentObj;
+    }
+
+    min = (momentObj.isBefore(min)) ? momentObj : min;
+    max = (momentObj.isAfter(max)) ? momentObj : max;
+
     mPlotData.push({
-      x: i,
+      //x: i,
+      x: moment(dateString),
       y: parseFloat(row.cells[6].innerText),
     });
 
@@ -598,18 +618,26 @@ function updateFigure(name) {
         },
       },
       responsive: true,
-
       tooltips: {
         mode: "index",
       },
       scales: {
         x: {
+            type: 'time',
+            min: min,
+            max: max,
+            time: {
+              //tooltipFormat: 'DD T',
+              unit: 'day'
+              //minUnit: 'days'
+            },
             display: true,
             scaleLabel: {
               display: true,
               labelString: "Session",
             },
             ticks: {
+              source: 'auto',
               major: {
                 fontStyle: "bold",
                 fontColor: "#FF0000",
