@@ -516,17 +516,18 @@ function clearFigure() {
       ],
     },
     options: {
-      responsive: true,
-      title: {
-        display: true,
-        text: "Participant: ",
+      //responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Participant: ",
+        },  
       },
-      tooltips: {
-        mode: "index",
-      },
+      //tooltips: {
+      //  mode: "index",
+      //},
       scales: {
-        xAxes: [
-          {
+        x: {
             display: true,
             scaleLabel: {
               display: true,
@@ -539,9 +540,7 @@ function clearFigure() {
               },
             },
           },
-        ],
-        yAxes: [
-          {
+        y: {
             display: true,
             scaleLabel: {
               display: true,
@@ -551,7 +550,6 @@ function clearFigure() {
               suggestedMin: 0,
             },
           },
-        ],
       },
     },
   };
@@ -593,17 +591,19 @@ function updateFigure(name) {
       ],
     },
     options: {
-      responsive: true,
-      title: {
-        display: true,
-        text: "Participant: " + name,
+      plugins: {
+        title: {
+          display: true,
+          text: "Participant: " + name,
+        },
       },
+      responsive: true,
+
       tooltips: {
         mode: "index",
       },
       scales: {
-        xAxes: [
-          {
+        x: {
             display: true,
             scaleLabel: {
               display: true,
@@ -616,9 +616,7 @@ function updateFigure(name) {
               },
             },
           },
-        ],
-        yAxes: [
-          {
+        y: {
             display: true,
             scaleLabel: {
               display: true,
@@ -628,13 +626,13 @@ function updateFigure(name) {
               suggestedMin: 0,
             },
           },
-        ],
       },
     },
   };
 
   var ctx = document.getElementById("canvas").getContext("2d");
 
+  window.myLine.destroy();
   window.myLine = new Chart(ctx, config);
   window.myLine.update();
 }
