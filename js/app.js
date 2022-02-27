@@ -148,8 +148,12 @@ function snapshotUpdateCall(querySnapshot) {
     var tableBody = document.getElementById("tableBody2");
     tableBody.innerHTML = "";
 
+    var nParticipants = 0;
+
     querySnapshot.forEach(function (doc) {
       const data = doc.data();
+
+      nParticipants++;
 
       //
       var newRow = document.createElement("tr");
@@ -229,8 +233,11 @@ function snapshotUpdateCall(querySnapshot) {
 
       tableBody.appendChild(newRow);
     });
+
+    document.getElementById("showClassWide").style = "display:block";
   } else {
     document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
+    document.getElementById("showClassWide").style = "display:none";
   }
 }
 
