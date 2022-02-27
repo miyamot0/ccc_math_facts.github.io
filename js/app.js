@@ -231,13 +231,23 @@ function snapshotUpdateCall(querySnapshot) {
       cell.appendChild(aTag);
       newRow.appendChild(cell);
 
+      ////
+      aTag = document.createElement("a");
+      aTag.setAttribute(
+        "href",
+        'javascript:pullMembersInClass();'
+      );
+      aTag.setAttribute("class", "leading btn btn-raised");
+      aTag.innerHTML = "Show Class";
+      cell = document.createElement("td");
+      cell.appendChild(aTag);
+      newRow.appendChild(cell);
+
       tableBody.appendChild(newRow);
     });
 
-    document.getElementById("showClassWide").style = "display:block";
   } else {
     document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
-    document.getElementById("showClassWide").style = "display:none";
   }
 }
 
@@ -318,6 +328,10 @@ function updateParticipant(tag, name, target) {
 
     updateTable(data2, name);
   });
+}
+
+function pullMembersInClass() {
+  
 }
 
 // Session editor dialog
@@ -554,6 +568,9 @@ function clearFigure() {
     },
   };
 
+  if (window.myLine != null) {
+    window.myLine.destroy();
+  }
   var ctx = document.getElementById("canvas").getContext("2d");
 
   window.myLine = new Chart(ctx, config);
@@ -564,8 +581,6 @@ function clearFigure() {
 function updateFigure(name) {
   var mLabels = [];
   var mPlotData = [];
-
-  //var mmt = moment(date)
 
   var min = null;
   var max = null;
@@ -660,7 +675,9 @@ function updateFigure(name) {
 
   var ctx = document.getElementById("canvas").getContext("2d");
 
-  window.myLine.destroy();
+  if (window.myLine != null) {
+    window.myLine.destroy();
+  }
   window.myLine = new Chart(ctx, config);
   window.myLine.update();
 }
