@@ -30,10 +30,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
-
-    <!--
-    <script src="js/utils.js"></script>
-    -->
   </head>
 
   <body>
@@ -52,7 +48,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Cover Copy Compare Tracking</a>
+            <a class="navbar-brand" href="#">Cover Copy Compare</a>
           </div>
           <div class="navbar-collapse collapse navbar-responsive-collapse">
             <ul class="nav navbar-nav">
@@ -85,6 +81,12 @@
             <div class="jumbotron">
               <h2 class="h2-responsive">Cover Copy Compare Dashboard</h2>
               <br />
+              <p class="lead">
+                From this page, you may view/edit student programming and review
+                their response to intervention. By default, individual progress
+                is the base setting, though individual performance can be viewed
+                against other students in the current class.
+              </p>
               <p class="lead" id="adminTag">Teachers in system:</p>
               <p id="selectHolder" class="lead"></p>
               <p class="lead">
@@ -126,7 +128,7 @@
               </div>
               <br />
               <h2 class="h2-responsive">
-                Student Progress Monitoring:
+                Progress Monitoring:
                 <span id="tagParticipantSpan"></span>
               </h2>
               <br />
@@ -487,8 +489,10 @@
       var oldListenerPath = null;
     </script>
 
-    <!-- Auth and links -->
+    <!-- Auth and helper -->
     <script src="js/app.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/ui.js"></script>
 
     <!-- Bootstrap tooltips -->
     <script src="js/tether.min.js"></script>
