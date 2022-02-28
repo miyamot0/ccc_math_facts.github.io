@@ -119,6 +119,8 @@ function snapshotUpdateCall(querySnapshot) {
           data.name +
           '","' +
           data.target +
+          '","' +
+          data.metric +
           '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
@@ -151,7 +153,11 @@ function snapshotUpdateCall(querySnapshot) {
       aTag = document.createElement("a");
       aTag.setAttribute(
         "href",
-        'javascript:pullMembersInClass("' + data.target + '");'
+        'javascript:pullMembersInClass("' +
+          data.target +
+          '","' +
+          data.metric +
+          '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
       aTag.innerHTML = "Show Class";

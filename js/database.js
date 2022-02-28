@@ -76,7 +76,7 @@ function getIndividualStudentPerformances(address) {
  *
  * @param {String} targetSkill current skill being targeted
  */
-function pullMembersInClass(targetSkill) {
+function pullMembersInClass(targetSkill, targetMetric) {
   const individualProgressTable = document.getElementById("tableBody2");
   const rowCount = individualProgressTable.rows.length;
   var promiseArray = [];
@@ -102,6 +102,7 @@ function pullMembersInClass(targetSkill) {
           })),
           name: name,
           target: targetSkill,
+          metric: targetMetric,
         };
 
         return dataObject;

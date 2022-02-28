@@ -151,8 +151,14 @@ function addNewParticipant() {
  * @param {String} studentId id for student
  * @param {String} studentName name for student
  * @param {String} targetSkill name of targeted skill
+ * @param {String} measurementMethod either accuracy or fluency
  */
-function updateParticipant(studentId, studentName, targetSkill) {
+function updateParticipant(
+  studentId,
+  studentName,
+  targetSkill,
+  measurementMethod
+) {
   document.getElementById("tagParticipantSpan").innerHTML = name;
 
   const currPath = getStudentPerformanceCollectionPath(
@@ -177,7 +183,7 @@ function updateParticipant(studentId, studentName, targetSkill) {
         return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
       });
 
-    updateIndividualDataTable(data, studentName);
+    updateIndividualDataTable(data, studentName, measurementMethod);
   });
 }
 
@@ -187,8 +193,13 @@ function updateParticipant(studentId, studentName, targetSkill) {
  *
  * @param {Array} individualPerfData array of student-specific performances
  * @param {String} studentName string of student name
+ * @param {String} measurementMethod either accuracy or fluency
  */
-function updateIndividualDataTable(individualPerfData, studentName) {
+function updateIndividualDataTable(
+  individualPerfData,
+  studentName,
+  measurementMethod
+) {
   var tableBody = document.getElementById("tableBody");
   tableBody.innerHTML = "";
 
@@ -260,7 +271,7 @@ function updateIndividualDataTable(individualPerfData, studentName) {
     newRow.appendChild(cell);
 
     var nMin = row.sessionDuration / 60;
-    var cpm = (row.nCorrectInitial / nMin) * 100;
+    var cpm = row.nCorrectInitial / nMin;
 
     cell = document.createElement("td");
     cellText = document.createTextNode(cpm.toFixed(2));
@@ -290,16 +301,17 @@ function updateIndividualDataTable(individualPerfData, studentName) {
     rowId++;
   });
 
-  updateFigure(studentName);
+  updateFigure(studentName, measurementMethod);
 }
 
 /**
  *
  * Update the current figure
  *
- * @param {*} studentName current student name
+ * @param {String} studentName current student name
+ * @param {String} measurementMethod either accuracy or fluency
  */
-function updateFigure(studentName) {
+function updateFigure(studentName, measurementMethod) {
   var mPlotData = [];
 
   var min = null;
@@ -307,10 +319,12 @@ function updateFigure(studentName) {
 
   var table = document.getElementById("tableBody");
   for (var i = 0, row; (row = table.rows[i]); i++) {
-    var dateString = row.cells[1].innerText;
-    dateString = dateString.split(".")[0];
-
-    var momentObj = moment(dateString);
+    const dateString = row.cells[1].innerText.split(".")[0];
+    const momentObj = moment(dateString);
+    const metricDispay =
+      measurementMethod == "Accuracy"
+        ? parseFloat(row.cells[6].innerText)
+        : parseFloat(row.cells[8].innerText);
 
     if (min == null || max == null) {
       min = momentObj;
@@ -322,16 +336,16 @@ function updateFigure(studentName) {
 
     mPlotData.push({
       x: moment(dateString),
-      y: parseFloat(row.cells[6].innerText),
+      y: metricDispay,
     });
   }
 
-  var config = {
+  const config = {
     type: "line",
     data: {
       datasets: [
         {
-          label: "Accuracy",
+          label: measurementMethod,
           data: mPlotData,
           borderColor: "rgb(54, 162, 235)",
           backgroundColor: "rgba(0, 0, 0, 0)",
@@ -360,9 +374,9 @@ function updateFigure(studentName) {
             unit: "day",
           },
           display: true,
-          scaleLabel: {
+          title: {
             display: true,
-            labelString: "Session",
+            text: "Date",
           },
           ticks: {
             source: "auto",
@@ -374,13 +388,12 @@ function updateFigure(studentName) {
         },
         y: {
           display: true,
-          scaleLabel: {
+          title: {
             display: true,
-            labelString: "Accuracy",
+            text: measurementMethod,
           },
-          ticks: {
-            suggestedMin: 0,
-          },
+          min: 0,
+          beginAtZero: true,
         },
       },
     },
@@ -405,13 +418,16 @@ function updateFigureClasswide(arrayOfArrays) {
   var min = null;
   var max = null;
 
+  console.log(arrayOfArrays);
+
   var datasetsBig = [];
 
   for (var i = 0; i < arrayOfArrays.length; i++) {
     var student = arrayOfArrays[i].data;
     var dataSeries = [];
     var id = null,
-      name = null;
+      name = null,
+      measurementMethod = null;
 
     if (student.length > 1) {
       var student = student.sort(function (a, b) {
@@ -419,12 +435,19 @@ function updateFigureClasswide(arrayOfArrays) {
       });
 
       for (var j = 0; j < student.length; j++) {
-        var data = student[j];
+        const data = student[j];
 
         id = id == null ? data.id : id;
         name = name == null ? arrayOfArrays[i].name : name;
+        measurementMethod =
+          measurementMethod == null
+            ? arrayOfArrays[i].metric
+            : measurementMethod;
 
         const pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
+        const cpm =
+          data.nCorrectInitial / (parseFloat(data.sessionDuration) / 60);
+
         const dateString = data.dateTimeStart.split(".")[0];
         const momentObj = moment(dateString);
 
@@ -438,7 +461,10 @@ function updateFigureClasswide(arrayOfArrays) {
 
         dataSeries.push({
           x: moment(dateString),
-          y: parseFloat(pct.toFixed(2)),
+          y:
+            measurementMethod == "Accuracy"
+              ? parseFloat(pct.toFixed(2))
+              : parseFloat(cpm.toFixed(2)),
         });
       }
 
@@ -479,8 +505,8 @@ function updateFigureClasswide(arrayOfArrays) {
       scales: {
         x: {
           type: "time",
-          min: min.subtract(1, "days"),
-          max: max.add(1, "days"),
+          min: min == null ? null : min.subtract(1, "days"),
+          max: max == null ? null : max.add(1, "days"),
           time: {
             unit: "day",
           },
