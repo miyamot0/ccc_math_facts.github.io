@@ -104,7 +104,7 @@ function snapshotUpdateCall(querySnapshot) {
 
       ////
       cell = document.createElement("td");
-      cellText = document.createTextNode("TEMP");
+      cellText = document.createTextNode(data.metric);
       cell.appendChild(cellText);
       newRow.appendChild(cell);
       tableBody.appendChild(newRow);
@@ -137,6 +137,7 @@ function snapshotUpdateCall(querySnapshot) {
       aTag.setAttribute("data-participantTarget", data.target);
       aTag.setAttribute("data-participantSetSize", data.setSize);
       aTag.setAttribute("data-participantSet", data.set);
+      aTag.setAttribute("data-participantMetric", data.metric);
       aTag.setAttribute(
         "data-participantPresentation",
         data.preferredOrientation

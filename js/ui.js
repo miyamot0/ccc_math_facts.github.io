@@ -107,7 +107,8 @@ function addNewParticipant() {
     pSetSize = document.getElementById("addParticipantSetSize").value,
     pSetNum = document.getElementById("addParticipantSetNumber").value,
     pPrf = document.getElementById("addPresentation").value,
-    noPref = pPrf == "No Preference";
+    noPref = pPrf == "No Preference",
+    pMet = document.getElementById("addParticipantMetric").value;
 
   if (!$.isNumeric(pSetSize)) {
     alert("The set size must be a number.");
@@ -127,6 +128,7 @@ function addNewParticipant() {
       setSize: parseInt(pSetSize),
       preferredOrientation: pPrf,
       hasPreference: !noPref,
+      metric: pMet,
     })
     .then(function (_) {
       $("#addParticipantModal").modal("hide");
@@ -629,6 +631,7 @@ $(document).on("click", ".open-sessionDialog", function () {
   var pSS = $(this).data("participantsetsize");
   var pNum = $(this).data("participantset");
   var pPrf = $(this).data("participantpresentation");
+  var pMet = $(this).data("participantmetric");
 
   $(".modal-body #editParticipantTag").val(pTag);
   $(".modal-body #editParticipantTarget").val(pTgt);
@@ -636,6 +639,7 @@ $(document).on("click", ".open-sessionDialog", function () {
   $(".modal-body #editParticipantSet").val(pNum);
   $(".modal-body #editParticipantID").val(pId);
   $(".modal-body #editPresentation").val(pPrf);
+  $(".modal-body #editParticipantMetric").val(pMet);
 
   $("#editParticipantSave").click(null);
   $("#editParticipantSave")
@@ -645,7 +649,8 @@ $(document).on("click", ".open-sessionDialog", function () {
         pTgt = document.getElementById("editParticipantTarget").value,
         pSS = document.getElementById("editParticipantSetSize").value,
         pNum = document.getElementById("editParticipantSet").value,
-        pPrf = document.getElementById("editPresentation").value;
+        pPrf = document.getElementById("editPresentation").value,
+        pMet = document.getElementById("editParticipantMetric").value;
 
       if (pTag == null || pTag.length < 3) {
         window.alert("Please supply a name or tag for the student");
@@ -675,6 +680,7 @@ $(document).on("click", ".open-sessionDialog", function () {
           target: pTgt,
           preferredOrientation: pPrf,
           hasPreference: !noPref,
+          metric: pMet,
         })
         .then(function (_) {
           $("#editParticipantModal").modal("hide");
@@ -684,7 +690,8 @@ $(document).on("click", ".open-sessionDialog", function () {
           document.getElementById("editParticipantSetSize").value = "";
           document.getElementById("editParticipantSet").value = "";
           document.getElementById("editParticipantID").value = "";
-          document.getElementById("editParticipantID").value = "";
+          document.getElementById("editPresentation").value = "";
+          document.getElementById("editParticipantMetric").value = "";
         })
         .catch(function (err) {
           alert(err);
