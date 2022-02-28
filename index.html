@@ -31,7 +31,9 @@
     <script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
 
+    <!--
     <script src="js/utils.js"></script>
+    -->
   </head>
 
   <body>
@@ -113,7 +115,7 @@
                       <th scope="col">Target Skill</th>
                       <th scope="col">Size of Set</th>
                       <th scope="col">Set Number</th>
-                      <th scope="col" style="display: none;">ID</th>
+                      <th scope="col" style="display: none">ID</th>
                       <th scope="col">View Progress</th>
                       <th scope="col">Edit Programming</th>
                       <th scope="col">Compare to Class</th>
@@ -158,45 +160,65 @@
         <!--/.Participant Display row-->
 
         <!-- Login row -->
-        <div id="login_block" class="row">
-          <div class="col-md-4 col-md-offset-4">
-            <div class="well" style="text-align: center">
-              <h2 class="h2-responsive">
-                Covery Copy Compare (Math Facts) Login
-              </h2>
-
-              <div class="form-group">
-                <label htmlFor="email_field" class="bmd-label-floating"
-                  >Username/Email address</label
-                >
-                <input
-                  type="email"
-                  placeholder="Email..."
-                  id="email_field"
-                  class="form-control"
-                />
+        <div id="login_block">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="jumbotron">
+                <h2 class="h2-responsive">Cover Copy Compare</h2>
+                <br />
+                <p class="lead">
+                  This is the landing page for the electronic form of the Cover
+                  Copy Compare application. This web page serves as the teacher-
+                  and administration-forward interface for both updating student
+                  settings and viewing student progress.
+                </p>
+                <br />
+                <p class="lead">
+                  At present, <strong>this work is in beta testing</strong> and
+                  interested parties are directed to the CCC administrator,
+                  <a href="emailto:sgilroy1@lsu.edu">Shawn Gilroy</a>, for
+                  assistance and information.
+                </p>
               </div>
+            </div>
 
-              <div class="form-group">
-                <label htmlFor="password_field" class="bmd-label-floating"
-                  >Password</label
+            <div class="col-md-4">
+              <div class="well" style="text-align: center">
+                <h2 class="h2-responsive">Login</h2>
+
+                <div class="form-group">
+                  <label htmlFor="email_field" class="bmd-label-floating"
+                    >Username/Email address</label
+                  >
+                  <input
+                    type="email"
+                    placeholder="Email..."
+                    id="email_field"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label htmlFor="password_field" class="bmd-label-floating"
+                    >Password</label
+                  >
+                  <input
+                    type="password"
+                    placeholder="Password..."
+                    id="password_field"
+                    class="form-control"
+                  />
+                </div>
+
+                <br />
+
+                <button
+                  onclick="login()"
+                  class="btn btn-primary btn-block btn-raised"
                 >
-                <input
-                  type="password"
-                  placeholder="Password..."
-                  id="password_field"
-                  class="form-control"
-                />
+                  Login to Account
+                </button>
               </div>
-
-              <br />
-
-              <button
-                onclick="login()"
-                class="btn btn-primary btn-block btn-raised"
-              >
-                Login to Account
-              </button>
             </div>
           </div>
         </div>
@@ -464,7 +486,6 @@
 
       var oldListenerPath = null;
     </script>
-    <script src="app.js"></script>
 
     <!-- Auth and links -->
     <script src="js/app.js"></script>
