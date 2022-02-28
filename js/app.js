@@ -187,10 +187,11 @@ function snapshotUpdateCall(querySnapshot) {
       tableBody.appendChild(newRow);
 
       ////
-      //cell = document.createElement("td");
-      //cellText = document.createTextNode(doc.id);
-      //cell.appendChild(cellText);
-      //newRow.appendChild(cell);
+      cell = document.createElement("td");
+      cellText = document.createTextNode(doc.id);
+      cell.appendChild(cellText);
+      cell.style = "display:none";
+      newRow.appendChild(cell);
 
       tableBody.appendChild(newRow);
 
@@ -235,7 +236,9 @@ function snapshotUpdateCall(querySnapshot) {
       aTag = document.createElement("a");
       aTag.setAttribute(
         "href",
-        'javascript:pullMembersInClass();'
+        'javascript:pullMembersInClass("' +
+        data.target +
+        '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
       aTag.innerHTML = "Show Class";
@@ -330,8 +333,38 @@ function updateParticipant(tag, name, target) {
   });
 }
 
-function pullMembersInClass() {
-  
+function getIndividualStudentPerformances(address) {
+  const snapshot = db.collection(address).get();
+  return snapshot.docs.map(doc => doc.data());
+}
+
+// Reference Table, get all relevant class info
+function pullMembersInClass(target) {
+  var promArray = [];
+  var table = document.getElementById("tableBody2");
+  var rowCount = table.rows.length;
+
+  for (var i = 0; i < rowCount; i++) {
+    const id = table.rows[i].cells[4].innerText;
+    const name = table.rows[i].cells[0].innerText;
+
+    var currPath = getStudentPerformanceCollectionPath(id, target);
+    var a = db.collection(currPath).get().then((qs) => {
+      var dataObject = {
+        data: qs.docs.map((doc) => ({
+          ...doc.data(),
+        })),
+        name: name,
+        target: target
+      }
+    
+      return dataObject;
+    });
+
+    promArray.push(a);
+  }
+
+  Promise.all(promArray).then((arrayOfArrays) => updateFigureClasswide(arrayOfArrays));
 }
 
 // Session editor dialog
@@ -639,8 +672,8 @@ function updateFigure(name) {
       scales: {
         x: {
             type: 'time',
-            min: min,
-            max: max,
+            min: min == null ? null : min.subtract(1, 'days'),
+            max: max == null ? null : max.add(1, 'days'),
             time: {
               //tooltipFormat: 'DD T',
               unit: 'day'
@@ -680,6 +713,139 @@ function updateFigure(name) {
   }
   window.myLine = new Chart(ctx, config);
   window.myLine.update();
+}
+
+function getRandomColor() {
+  var letters = '0123456789ABCDEF'.split('');
+  var color = '#';
+  for (var i = 0; i < 6; i++ ) {
+      color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+// Updating figure for participant
+function updateFigureClasswide(arrayOfArrays) {
+
+  var min = null;
+  var max = null;
+
+  var datasetsBig = [];
+
+  for (var i = 0; i < arrayOfArrays.length; i++) {
+    var student = arrayOfArrays[i].data;
+    var dataSeries = [];
+    var id = null;
+    var name = null;
+
+    if (student.length > 1) {
+      var student = student.sort(function (a, b) {
+        return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
+      });
+
+      for (var j = 0; j < student.length; j++) {
+        var data = student[j];
+  
+        id = (id == null) ? data.id : id;
+        name = (name == null) ? arrayOfArrays[i].name : name;
+  
+        var pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
+  
+        var dateString = data.dateTimeStart;
+        dateString = dateString.split('.')[0];
+    
+        var momentObj = moment(dateString);
+    
+        if (min == null || max == null) {
+          min = momentObj;
+          max = momentObj;
+        }
+    
+        min = (momentObj.isBefore(min)) ? momentObj : min;
+        max = (momentObj.isAfter(max)) ? momentObj : max;
+  
+        dataSeries.push({
+          x: moment(dateString),
+          y: parseFloat(pct.toFixed(2)),
+        });
+      }
+  
+      var colour = getRandomColor();
+  
+      datasetsBig.push({
+        label: name,
+        data: dataSeries,
+        borderColor: colour,
+        backgroundColor: colour,
+        fill: false,
+        lineTension: 0,
+      });
+    }
+  }
+
+  var config = {
+    type: "line",
+    data: {
+      datasets: datasetsBig,
+    },
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: "Participant: Whole Class",
+        },
+        colorschemes: {
+          scheme: 'tableau.Tableau20'
+        }
+      },
+      responsive: true,
+      tooltips: {
+        mode: "index",
+      },
+      scales: {
+        x: {
+            type: 'time',
+            min: min.subtract(1, 'days'),
+            max: max.add(1, 'days'),
+            time: {
+              unit: 'day'
+            },
+            display: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Session",
+            },
+            ticks: {
+              source: 'auto',
+              major: {
+                fontStyle: "bold",
+                fontColor: "#FF0000",
+              },
+            },
+          },
+        y: {
+            display: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Accuracy",
+            },
+            ticks: {
+              suggestedMin: 0,
+            },
+          },
+      },
+    },
+  };
+
+  var ctx = document.getElementById("canvas").getContext("2d");
+
+  if (window.myLine != null) {
+    window.myLine.destroy();
+  }
+  window.myLine = new Chart(ctx, config);
+  window.myLine.update();
+
+
 }
 
 // Download current table
