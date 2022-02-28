@@ -1,4 +1,6 @@
-// Login function, initial entry point
+/**
+ * Login function, entry point
+ */
 function login() {
   var userEmail = document.getElementById("email_field").value;
   var userPass = document.getElementById("password_field").value;
@@ -11,7 +13,9 @@ function login() {
     });
 }
 
-// Logout function, exit point
+/**
+ * Logout function, exit point
+ */
 function logout() {
   if (teacherListenerPath != null) {
     var unsubscribe = db
@@ -28,53 +32,64 @@ function logout() {
 
   clearFigure();
 
-  // Last, since triggers listener
   firebase.auth().signOut();
 }
 
-// Hide auth content if authorized
+/**
+ * Hide auth content if authorized
+ */
 function hideAuthContent() {
   document.getElementById("login_block").style.display = "none";
 
   var myClasses = document.querySelectorAll(".authElements"),
-    i = 0,
     l = myClasses.length;
 
-  for (i; i < l; i++) {
-    myClasses[i].style.display = "block";
-  }
+  for (i = 0; i < l; i++) myClasses[i].style.display = "block";
 }
 
-// Hide auth content if authorized
+/**
+ * Show auth content if not authorized
+ */
 function showAuthContent() {
   document.getElementById("login_block").style.display = "block";
 
   var myClasses = document.querySelectorAll(".authElements"),
-    i = 0,
     l = myClasses.length;
 
-  for (i; i < l; i++) {
-    myClasses[i].style.display = "none";
-  }
+  for (i = 0; i < l; i++) myClasses[i].style.display = "none";
 }
 
-// Build header for HUD
-function buildHeader(size) {
-  return size == 1 ? "1 participant" : size + " participants";
+/**
+ *
+ * Construct header for homepage
+ *
+ * @param {int} nParticipants number of participants
+ * @returns {string} header inner html
+ */
+function buildHeader(nParticipants) {
+  return nParticipants == 1 ? "1 participant" : nParticipants + " participants";
 }
 
-// Student listener call
-function onTeacherUpdateCall(querySnapshot) {
+/**
+ *
+ * Listener call for when current teacher is changed or set
+ *
+ * @param {QuerySnapshot} qS
+ */
+function onTeacherUpdateCall(qS) {
   document.getElementById("adminTag").innerHTML = "";
 
-  if (!querySnapshot.empty) {
+  if (!qS.empty)
     db.collection(getStudentCollectionPath(currentUserId)).onSnapshot(
       snapshotUpdateCall
     );
-  }
 }
 
-// Insert new participant into record (for relevant teacher)
+/**
+ *
+ * Trigger modal to enter new student into classroom
+ *
+ */
 function addNewParticipant() {
   if (currentUserId == null) {
     window.alert("You must first select a teacher/classroom");
@@ -88,19 +103,19 @@ function addNewParticipant() {
     return;
   }
 
-  var pTarget = document.getElementById("addParticipantTarget").value;
-  var pSetSize = document.getElementById("addParticipantSetSize").value;
-  var pSetNum = document.getElementById("addParticipantSetNumber").value;
-  var pPrf = document.getElementById("addPresentation").value;
-  var noPref = pPrf == "No Preference";
+  var pTarget = document.getElementById("addParticipantTarget").value,
+    pSetSize = document.getElementById("addParticipantSetSize").value,
+    pSetNum = document.getElementById("addParticipantSetNumber").value,
+    pPrf = document.getElementById("addPresentation").value,
+    noPref = pPrf == "No Preference";
 
   if (!$.isNumeric(pSetSize)) {
-    alert("Difficulty must be a number.");
+    alert("The set size must be a number.");
     return;
   }
 
   if (!$.isNumeric(pSetNum)) {
-    alert("Duration (seconds) must be a number.");
+    alert("The set selection must be numbered.");
     return;
   }
 
@@ -113,7 +128,7 @@ function addNewParticipant() {
       preferredOrientation: pPrf,
       hasPreference: !noPref,
     })
-    .then(function (docRef) {
+    .then(function (_) {
       $("#addParticipantModal").modal("hide");
 
       document.getElementById("addParticipantTag").value = "";
@@ -127,14 +142,21 @@ function addNewParticipant() {
     });
 }
 
-// Update data table
-function updateParticipant(tag, name, target) {
+/**
+ *
+ * Event fired when current student changes
+ *
+ * @param {String} studentId id for student
+ * @param {String} studentName name for student
+ * @param {String} targetSkill name of targeted skill
+ */
+function updateParticipant(studentId, studentName, targetSkill) {
   document.getElementById("tagParticipantSpan").innerHTML = name;
 
   const currPath = getStudentPerformanceCollectionPath(
-    tag,
+    studentId,
     currentUserId,
-    target
+    targetSkill
   );
 
   if (oldListenerPath != null || oldListenerPath == currPath) {
@@ -145,98 +167,32 @@ function updateParticipant(tag, name, target) {
   oldListenerPath = currPath;
 
   db.collection(currPath).onSnapshot((snapshot) => {
-    const data = snapshot.docs.map((doc) => ({
-      ...doc.data(),
-    }));
+    const data = snapshot.docs
+      .map((doc) => ({
+        ...doc.data(),
+      }))
+      .sort(function (a, b) {
+        return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
+      });
 
-    var data2 = data.sort(function (a, b) {
-      return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
-    });
-
-    updateTable(data2, name);
+    updateIndividualDataTable(data, studentName);
   });
 }
 
-// Session editor dialog
-$(document).on("click", ".open-sessionDialog", function () {
-  var pId = $(this).data("id");
-  var pTag = $(this).data("participanttag");
-  var pTgt = $(this).data("participanttarget");
-  var pSS = $(this).data("participantsetsize");
-  var pNum = $(this).data("participantset");
-  var pPrf = $(this).data("participantpresentation");
-
-  $(".modal-body #editParticipantTag").val(pTag);
-  $(".modal-body #editParticipantTarget").val(pTgt);
-  $(".modal-body #editParticipantSetSize").val(pSS);
-  $(".modal-body #editParticipantSet").val(pNum);
-  $(".modal-body #editParticipantID").val(pId);
-  $(".modal-body #editPresentation").val(pPrf);
-
-  $("#editParticipantSave").click(null);
-  $("#editParticipantSave")
-    .unbind()
-    .click(function () {
-      var pTag = document.getElementById("editParticipantTag").value;
-      var pTgt = document.getElementById("editParticipantTarget").value;
-      var pSS = document.getElementById("editParticipantSetSize").value;
-      var pNum = document.getElementById("editParticipantSet").value;
-      var pPrf = document.getElementById("editPresentation").value;
-
-      if (pTag == null || pTag.length < 3) {
-        window.alert("Please supply a name or tag for the student");
-        return;
-      }
-
-      if (!$.isNumeric(pSS)) {
-        window.alert("Set size must be a number.");
-        return;
-      }
-
-      if (!$.isNumeric(pNum)) {
-        window.alert("Set number must be a number.");
-        return;
-      }
-
-      pSS = parseInt(pSS);
-      pNum = parseInt(pNum);
-
-      var noPref = pPrf == "No Preference";
-
-      db.doc(getStudentCollectionPath(currentUserId) + "/" + pId)
-        .update({
-          name: pTag,
-          set: pNum,
-          setSize: pSS,
-          target: pTgt,
-          preferredOrientation: pPrf,
-          hasPreference: !noPref,
-        })
-        .then(function (docRef) {
-          $("#editParticipantModal").modal("hide");
-
-          document.getElementById("editParticipantTag").value = "";
-          document.getElementById("editParticipantTarget").value = "";
-          document.getElementById("editParticipantSetSize").value = "";
-          document.getElementById("editParticipantSet").value = "";
-          document.getElementById("editParticipantID").value = "";
-          document.getElementById("editParticipantID").value = "";
-        })
-        .catch(function (err) {
-          alert(err);
-        });
-
-      $("#editParticipantSave").click(null);
-    });
-});
-
-// Table update methods
-function updateTable(prePlotter, name) {
+/**
+ *
+ * Call to update the interface with data
+ *
+ * @param {Array} individualPerfData array of student-specific performances
+ * @param {String} studentName string of student name
+ */
+function updateIndividualDataTable(individualPerfData, studentName) {
   var tableBody = document.getElementById("tableBody");
   tableBody.innerHTML = "";
 
   var rowId = 1;
 
+  /*
   data = [];
   data.push([
     "Date",
@@ -248,8 +204,9 @@ function updateTable(prePlotter, name) {
     "Time",
     "Percentage",
   ]);
+  */
 
-  prePlotter.forEach(function (row) {
+  individualPerfData.forEach(function (row) {
     var newRow = document.createElement("tr");
 
     // Session Num
@@ -315,6 +272,7 @@ function updateTable(prePlotter, name) {
 
     tableBody.appendChild(newRow);
 
+    /*
     data.push([
       row.sessionDate,
       row.target,
@@ -325,84 +283,21 @@ function updateTable(prePlotter, name) {
       row.sessionDuration,
       pct.toFixed(2),
     ]);
+    */
 
     rowId++;
   });
 
-  updateFigure(name);
+  updateFigure(studentName);
 }
 
-// Clear current figure
-function clearFigure() {
-  var mLabels = [];
-  var mPlotData = [];
-
-  var config = {
-    type: "line",
-    data: {
-      labels: mLabels,
-      datasets: [
-        {
-          label: "Accuracy",
-          data: mPlotData,
-          borderColor: "rgb(54, 162, 235)",
-          backgroundColor: "rgba(0, 0, 0, 0)",
-          fill: false,
-          lineTension: 0,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: "Participant: ",
-        },
-      },
-      //tooltips: {
-      //  mode: "index",
-      //},
-      scales: {
-        x: {
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Session",
-          },
-          ticks: {
-            major: {
-              fontStyle: "bold",
-              fontColor: "#FF0000",
-            },
-          },
-        },
-        y: {
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Accuracy",
-          },
-          ticks: {
-            suggestedMin: 0,
-          },
-        },
-      },
-    },
-  };
-
-  if (window.myLine != null) {
-    window.myLine.destroy();
-  }
-  var ctx = document.getElementById("canvas").getContext("2d");
-
-  window.myLine = new Chart(ctx, config);
-  window.myLine.update();
-}
-
-// Updating figure for participant
-function updateFigure(name) {
-  var mLabels = [];
+/**
+ *
+ * Update the current figure
+ *
+ * @param {*} studentName current student name
+ */
+function updateFigure(studentName) {
   var mPlotData = [];
 
   var min = null;
@@ -424,18 +319,14 @@ function updateFigure(name) {
     max = momentObj.isAfter(max) ? momentObj : max;
 
     mPlotData.push({
-      //x: i,
       x: moment(dateString),
       y: parseFloat(row.cells[6].innerText),
     });
-
-    mLabels.push("" + (i + 1));
   }
 
   var config = {
     type: "line",
     data: {
-      labels: mLabels,
       datasets: [
         {
           label: "Accuracy",
@@ -451,7 +342,7 @@ function updateFigure(name) {
       plugins: {
         title: {
           display: true,
-          text: "Participant: " + name,
+          text: "Participant: " + studentName,
         },
       },
       responsive: true,
@@ -464,9 +355,7 @@ function updateFigure(name) {
           min: min == null ? null : min.subtract(1, "days"),
           max: max == null ? null : max.add(1, "days"),
           time: {
-            //tooltipFormat: 'DD T',
             unit: "day",
-            //minUnit: 'days'
           },
           display: true,
           scaleLabel: {
@@ -504,8 +393,207 @@ function updateFigure(name) {
   window.myLine.update();
 }
 
-// Download current table
+/**
+ *
+ * Update figure with classwide data
+ *
+ * @param {Array} arrayOfArrays arrays of student-specific arrays
+ */
+function updateFigureClasswide(arrayOfArrays) {
+  var min = null;
+  var max = null;
+
+  var datasetsBig = [];
+
+  for (var i = 0; i < arrayOfArrays.length; i++) {
+    var student = arrayOfArrays[i].data;
+    var dataSeries = [];
+    var id = null,
+      name = null;
+
+    if (student.length > 1) {
+      var student = student.sort(function (a, b) {
+        return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
+      });
+
+      for (var j = 0; j < student.length; j++) {
+        var data = student[j];
+
+        id = id == null ? data.id : id;
+        name = name == null ? arrayOfArrays[i].name : name;
+
+        const pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
+        const dateString = data.dateTimeStart.split(".")[0];
+        const momentObj = moment(dateString);
+
+        if (min == null || max == null) {
+          min = momentObj;
+          max = momentObj;
+        }
+
+        min = momentObj.isBefore(min) ? momentObj : min;
+        max = momentObj.isAfter(max) ? momentObj : max;
+
+        dataSeries.push({
+          x: moment(dateString),
+          y: parseFloat(pct.toFixed(2)),
+        });
+      }
+
+      // TODO: smarter way to assign colours
+
+      var colour = getRandomColor();
+
+      datasetsBig.push({
+        label: name,
+        data: dataSeries,
+        borderColor: colour,
+        backgroundColor: colour,
+        fill: false,
+        lineTension: 0,
+      });
+    }
+  }
+
+  const config = {
+    type: "line",
+    data: {
+      datasets: datasetsBig,
+    },
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: "Participant: Whole Class",
+        },
+        colorschemes: {
+          scheme: "tableau.Tableau20",
+        },
+      },
+      responsive: true,
+      tooltips: {
+        mode: "index",
+      },
+      scales: {
+        x: {
+          type: "time",
+          min: min.subtract(1, "days"),
+          max: max.add(1, "days"),
+          time: {
+            unit: "day",
+          },
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: "Session",
+          },
+          ticks: {
+            source: "auto",
+            major: {
+              fontStyle: "bold",
+              fontColor: "#FF0000",
+            },
+          },
+        },
+        y: {
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: "Accuracy",
+          },
+          ticks: {
+            suggestedMin: 0,
+          },
+        },
+      },
+    },
+  };
+
+  const ctx = document.getElementById("canvas").getContext("2d");
+
+  if (window.myLine != null) {
+    window.myLine.destroy();
+  }
+
+  window.myLine = new Chart(ctx, config);
+  window.myLine.update();
+}
+
+/**
+ *
+ * Clear the current figure being shown
+ *
+ */
+function clearFigure() {
+  var mPlotData = [];
+
+  var config = {
+    type: "line",
+    data: {
+      datasets: [
+        {
+          label: "Accuracy",
+          data: mPlotData,
+          borderColor: "rgb(54, 162, 235)",
+          backgroundColor: "rgba(0, 0, 0, 0)",
+          fill: false,
+          lineTension: 0,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Participant: ",
+        },
+      },
+      scales: {
+        x: {
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: "Session",
+          },
+          ticks: {
+            major: {
+              fontStyle: "bold",
+              fontColor: "#FF0000",
+            },
+          },
+        },
+        y: {
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: "Accuracy",
+          },
+          ticks: {
+            suggestedMin: 0,
+          },
+        },
+      },
+    },
+  };
+
+  if (window.myLine != null) {
+    window.myLine.destroy();
+  }
+  var ctx = document.getElementById("canvas").getContext("2d");
+
+  window.myLine = new Chart(ctx, config);
+  window.myLine.update();
+}
+
+/**
+ *
+ * Download the current table
+ *
+ */
 function download() {
+  // TODO: stubbed for now
+  /*
   var csv = "";
   data.forEach(function (row) {
     csv += row.join(",");
@@ -517,6 +605,7 @@ function download() {
   hiddenElement.target = "_blank";
   hiddenElement.download = "download.csv";
   hiddenElement.click();
+  */
 }
 
 function getRandomColor() {
@@ -527,3 +616,80 @@ function getRandomColor() {
   }
   return color;
 }
+
+/**
+ *
+ * Launch the session editor dialog
+ *
+ */
+$(document).on("click", ".open-sessionDialog", function () {
+  var pId = $(this).data("id");
+  var pTag = $(this).data("participanttag");
+  var pTgt = $(this).data("participanttarget");
+  var pSS = $(this).data("participantsetsize");
+  var pNum = $(this).data("participantset");
+  var pPrf = $(this).data("participantpresentation");
+
+  $(".modal-body #editParticipantTag").val(pTag);
+  $(".modal-body #editParticipantTarget").val(pTgt);
+  $(".modal-body #editParticipantSetSize").val(pSS);
+  $(".modal-body #editParticipantSet").val(pNum);
+  $(".modal-body #editParticipantID").val(pId);
+  $(".modal-body #editPresentation").val(pPrf);
+
+  $("#editParticipantSave").click(null);
+  $("#editParticipantSave")
+    .unbind()
+    .click(function () {
+      var pTag = document.getElementById("editParticipantTag").value,
+        pTgt = document.getElementById("editParticipantTarget").value,
+        pSS = document.getElementById("editParticipantSetSize").value,
+        pNum = document.getElementById("editParticipantSet").value,
+        pPrf = document.getElementById("editPresentation").value;
+
+      if (pTag == null || pTag.length < 3) {
+        window.alert("Please supply a name or tag for the student");
+        return;
+      }
+
+      if (!$.isNumeric(pSS)) {
+        window.alert("Set size must be a number.");
+        return;
+      }
+
+      if (!$.isNumeric(pNum)) {
+        window.alert("Set number must be a number.");
+        return;
+      }
+
+      pSS = parseInt(pSS);
+      pNum = parseInt(pNum);
+
+      var noPref = pPrf == "No Preference";
+
+      db.doc(getStudentCollectionPath(currentUserId) + "/" + pId)
+        .update({
+          name: pTag,
+          set: pNum,
+          setSize: pSS,
+          target: pTgt,
+          preferredOrientation: pPrf,
+          hasPreference: !noPref,
+        })
+        .then(function (_) {
+          $("#editParticipantModal").modal("hide");
+
+          document.getElementById("editParticipantTag").value = "";
+          document.getElementById("editParticipantTarget").value = "";
+          document.getElementById("editParticipantSetSize").value = "";
+          document.getElementById("editParticipantSet").value = "";
+          document.getElementById("editParticipantID").value = "";
+          document.getElementById("editParticipantID").value = "";
+        })
+        .catch(function (err) {
+          alert(err);
+        });
+
+      $("#editParticipantSave").click(null);
+    });
+});

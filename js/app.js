@@ -1,4 +1,9 @@
-// Teacher update call (re-fresh students)
+/**
+ *
+ * Listener for snapshot changes
+ *
+ * @param {QuerySnapshot} querySnapshot
+ */
 function onAdminUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
     var selectHolderRef = document.getElementById("selectHolder");
@@ -20,7 +25,7 @@ function onAdminUpdateCall(querySnapshot) {
     });
 
     selectHolderRef.addEventListener("change", function () {
-      var selRef = document.getElementById("selectListId");
+      const selRef = document.getElementById("selectListId");
 
       if (selRef.value != null) {
         document.getElementById("participantDiv").innerHTML = "";
@@ -29,14 +34,9 @@ function onAdminUpdateCall(querySnapshot) {
 
         clearFigure();
 
-        // Lazy ref to global
-        currentUserId = selRef.value;
-
-        db.collection(getStudentCollectionPath(currentUserId)).onSnapshot(
+        db.collection(getStudentCollectionPath(getCurrentUserId())).onSnapshot(
           snapshotUpdateCall
         );
-      } else {
-        currentUserId = null;
       }
     });
 
@@ -44,7 +44,12 @@ function onAdminUpdateCall(querySnapshot) {
   }
 }
 
-// Map student in teacher classroom
+/**
+ *
+ * Listener for participant snapshot changes
+ *
+ * @param {QuerySnapshot} querySnapshot
+ */
 function snapshotUpdateCall(querySnapshot) {
   if (!querySnapshot.empty) {
     document.getElementById("nParticipantSpan").innerHTML = buildHeader(
@@ -55,12 +60,8 @@ function snapshotUpdateCall(querySnapshot) {
     var tableBody = document.getElementById("tableBody2");
     tableBody.innerHTML = "";
 
-    var nParticipants = 0;
-
     querySnapshot.forEach(function (doc) {
       const data = doc.data();
-
-      nParticipants++;
 
       //
       var newRow = document.createElement("tr");
@@ -156,159 +157,4 @@ function snapshotUpdateCall(querySnapshot) {
   } else {
     document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
   }
-}
-
-// Reference Table, get all relevant class info
-function pullMembersInClass(target) {
-  var promArray = [];
-  var table = document.getElementById("tableBody2");
-  var rowCount = table.rows.length;
-
-  for (var i = 0; i < rowCount; i++) {
-    const id = table.rows[i].cells[4].innerText;
-    const name = table.rows[i].cells[0].innerText;
-
-    var currPath = getStudentPerformanceCollectionPath(id, target);
-    var a = db
-      .collection(currPath)
-      .get()
-      .then((qs) => {
-        var dataObject = {
-          data: qs.docs.map((doc) => ({
-            ...doc.data(),
-          })),
-          name: name,
-          target: target,
-        };
-
-        return dataObject;
-      });
-
-    promArray.push(a);
-  }
-
-  Promise.all(promArray).then((arrayOfArrays) =>
-    updateFigureClasswide(arrayOfArrays)
-  );
-}
-
-// Updating figure for participant
-function updateFigureClasswide(arrayOfArrays) {
-  var min = null;
-  var max = null;
-
-  var datasetsBig = [];
-
-  for (var i = 0; i < arrayOfArrays.length; i++) {
-    var student = arrayOfArrays[i].data;
-    var dataSeries = [];
-    var id = null;
-    var name = null;
-
-    if (student.length > 1) {
-      var student = student.sort(function (a, b) {
-        return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
-      });
-
-      for (var j = 0; j < student.length; j++) {
-        var data = student[j];
-
-        id = id == null ? data.id : id;
-        name = name == null ? arrayOfArrays[i].name : name;
-
-        var pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
-
-        var dateString = data.dateTimeStart;
-        dateString = dateString.split(".")[0];
-
-        var momentObj = moment(dateString);
-
-        if (min == null || max == null) {
-          min = momentObj;
-          max = momentObj;
-        }
-
-        min = momentObj.isBefore(min) ? momentObj : min;
-        max = momentObj.isAfter(max) ? momentObj : max;
-
-        dataSeries.push({
-          x: moment(dateString),
-          y: parseFloat(pct.toFixed(2)),
-        });
-      }
-
-      var colour = getRandomColor();
-
-      datasetsBig.push({
-        label: name,
-        data: dataSeries,
-        borderColor: colour,
-        backgroundColor: colour,
-        fill: false,
-        lineTension: 0,
-      });
-    }
-  }
-
-  var config = {
-    type: "line",
-    data: {
-      datasets: datasetsBig,
-    },
-    options: {
-      plugins: {
-        title: {
-          display: true,
-          text: "Participant: Whole Class",
-        },
-        colorschemes: {
-          scheme: "tableau.Tableau20",
-        },
-      },
-      responsive: true,
-      tooltips: {
-        mode: "index",
-      },
-      scales: {
-        x: {
-          type: "time",
-          min: min.subtract(1, "days"),
-          max: max.add(1, "days"),
-          time: {
-            unit: "day",
-          },
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Session",
-          },
-          ticks: {
-            source: "auto",
-            major: {
-              fontStyle: "bold",
-              fontColor: "#FF0000",
-            },
-          },
-        },
-        y: {
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Accuracy",
-          },
-          ticks: {
-            suggestedMin: 0,
-          },
-        },
-      },
-    },
-  };
-
-  var ctx = document.getElementById("canvas").getContext("2d");
-
-  if (window.myLine != null) {
-    window.myLine.destroy();
-  }
-  window.myLine = new Chart(ctx, config);
-  window.myLine.update();
 }
