@@ -108,7 +108,8 @@ function addNewParticipant() {
     pSetNum = document.getElementById("addParticipantSetNumber").value,
     pPrf = document.getElementById("addPresentation").value,
     noPref = pPrf == "No Preference",
-    pMet = document.getElementById("addParticipantMetric").value;
+    pMet = document.getElementById("addParticipantMetric").value,
+    pAim = document.getElementById("addParticipantAim").value;
 
   if (!$.isNumeric(pSetSize)) {
     alert("The set size must be a number.");
@@ -120,6 +121,15 @@ function addNewParticipant() {
     return;
   }
 
+  if (!$.isNumeric(pAim)) {
+    window.alert("Aim level should be a number.");
+    return;
+  }
+
+  pAim = parseInt(pAim);
+
+  // TODO: is random
+
   db.collection(getStudentCollectionPath(currentUserId))
     .add({
       name: pName,
@@ -129,6 +139,8 @@ function addNewParticipant() {
       preferredOrientation: pPrf,
       hasPreference: !noPref,
       metric: pMet,
+      random: false,
+      aim: pAim,
     })
     .then(function (_) {
       $("#addParticipantModal").modal("hide");
@@ -159,7 +171,7 @@ function updateParticipant(
   targetSkill,
   measurementMethod
 ) {
-  document.getElementById("tagParticipantSpan").innerHTML = name;
+  document.getElementById("tagParticipantSpan").innerHTML = studentName;
 
   const currPath = getStudentPerformanceCollectionPath(
     studentId,
@@ -271,7 +283,7 @@ function updateIndividualDataTable(
     newRow.appendChild(cell);
 
     var nMin = row.sessionDuration / 60;
-    var cpm = row.nCorrectInitial / nMin;
+    var cpm = row.correctDigits / nMin;
 
     cell = document.createElement("td");
     cellText = document.createTextNode(cpm.toFixed(2));
@@ -658,6 +670,7 @@ $(document).on("click", ".open-sessionDialog", function () {
   var pNum = $(this).data("participantset");
   var pPrf = $(this).data("participantpresentation");
   var pMet = $(this).data("participantmetric");
+  var pAim = $(this).data("participantaim");
 
   $(".modal-body #editParticipantTag").val(pTag);
   $(".modal-body #editParticipantTarget").val(pTgt);
@@ -666,6 +679,7 @@ $(document).on("click", ".open-sessionDialog", function () {
   $(".modal-body #editParticipantID").val(pId);
   $(".modal-body #editPresentation").val(pPrf);
   $(".modal-body #editParticipantMetric").val(pMet);
+  $(".modal-body #editParticipantAim").val(pAim);
 
   $("#editParticipantSave").click(null);
   $("#editParticipantSave")
@@ -677,6 +691,7 @@ $(document).on("click", ".open-sessionDialog", function () {
         pNum = document.getElementById("editParticipantSet").value,
         pPrf = document.getElementById("editPresentation").value,
         pMet = document.getElementById("editParticipantMetric").value;
+      pAim = document.getElementById("editParticipantAim").value;
 
       if (pTag == null || pTag.length < 3) {
         window.alert("Please supply a name or tag for the student");
@@ -693,8 +708,14 @@ $(document).on("click", ".open-sessionDialog", function () {
         return;
       }
 
+      if (!$.isNumeric(pAim)) {
+        window.alert("Aim level should be a number.");
+        return;
+      }
+
       pSS = parseInt(pSS);
       pNum = parseInt(pNum);
+      pAim = parseInt(pAim);
 
       var noPref = pPrf == "No Preference";
 
@@ -707,6 +728,7 @@ $(document).on("click", ".open-sessionDialog", function () {
           preferredOrientation: pPrf,
           hasPreference: !noPref,
           metric: pMet,
+          aim: pAim,
         })
         .then(function (_) {
           $("#editParticipantModal").modal("hide");
@@ -718,6 +740,7 @@ $(document).on("click", ".open-sessionDialog", function () {
           document.getElementById("editParticipantID").value = "";
           document.getElementById("editPresentation").value = "";
           document.getElementById("editParticipantMetric").value = "";
+          document.getElementById("editParticipantAim").value = "";
         })
         .catch(function (err) {
           alert(err);

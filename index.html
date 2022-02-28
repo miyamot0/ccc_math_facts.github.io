@@ -119,6 +119,7 @@
                       <th scope="col">Set Number</th>
                       <th scope="col" style="display: none">ID</th>
                       <th scope="col">Metric</th>
+                      <th scope="col">Aim</th>
                       <th scope="col">View Progress</th>
                       <th scope="col">Edit Programming</th>
                       <th scope="col">Compare to Class</th>
@@ -145,7 +146,7 @@
                       <th scope="col">Retries</th>
                       <th scope="col">% Correct</th>
                       <th scope="col">Time (s)</th>
-                      <th scope="col">n Correct Problems/min</th>
+                      <th scope="col">Digits Correct/min</th>
                       <th scope="col">Errors</th>
                     </tr>
                   </thead>
@@ -321,6 +322,13 @@
                 <option>Fluency</option>
               </select>
             </div>
+
+            <div class="form-group">
+              <label for="addParticipantAim" class="bmd-label-floating"
+                >Enter aim for student performance</label
+              >
+              <input type="text" class="form-control" id="addParticipantAim" />
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">
@@ -430,6 +438,13 @@
                 <option>Accuracy</option>
                 <option>Fluency</option>
               </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editParticipantAim" class="bmd-label-floating"
+                >Enter aim for student performance</label
+              >
+              <input type="text" class="form-control" id="editParticipantAim" />
             </div>
 
             <div class="form-group">

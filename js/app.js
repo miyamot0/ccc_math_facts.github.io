@@ -110,6 +110,13 @@ function snapshotUpdateCall(querySnapshot) {
       tableBody.appendChild(newRow);
 
       ////
+      cell = document.createElement("td");
+      cellText = document.createTextNode(data.aim);
+      cell.appendChild(cellText);
+      newRow.appendChild(cell);
+      tableBody.appendChild(newRow);
+
+      ////
       aTag = document.createElement("a");
       aTag.setAttribute(
         "href",
@@ -140,6 +147,7 @@ function snapshotUpdateCall(querySnapshot) {
       aTag.setAttribute("data-participantSetSize", data.setSize);
       aTag.setAttribute("data-participantSet", data.set);
       aTag.setAttribute("data-participantMetric", data.metric);
+      aTag.setAttribute("data-participantAim", data.aim);
       aTag.setAttribute(
         "data-participantPresentation",
         data.preferredOrientation
