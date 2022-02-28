@@ -128,6 +128,8 @@ function snapshotUpdateCall(querySnapshot) {
           data.target +
           '","' +
           data.metric +
+          '","' +
+          data.aim +
           '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");

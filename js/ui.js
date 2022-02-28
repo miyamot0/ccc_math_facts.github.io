@@ -128,8 +128,6 @@ function addNewParticipant() {
 
   pAim = parseInt(pAim);
 
-  // TODO: is random
-
   db.collection(getStudentCollectionPath(currentUserId))
     .add({
       name: pName,
@@ -164,12 +162,14 @@ function addNewParticipant() {
  * @param {String} studentName name for student
  * @param {String} targetSkill name of targeted skill
  * @param {String} measurementMethod either accuracy or fluency
+ * @param {String} aimLevel aim level
  */
 function updateParticipant(
   studentId,
   studentName,
   targetSkill,
-  measurementMethod
+  measurementMethod,
+  aimLevel
 ) {
   document.getElementById("tagParticipantSpan").innerHTML = studentName;
 
@@ -195,7 +195,7 @@ function updateParticipant(
         return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
       });
 
-    updateIndividualDataTable(data, studentName, measurementMethod);
+    updateIndividualDataTable(data, studentName, measurementMethod, aimLevel);
   });
 }
 
@@ -206,11 +206,13 @@ function updateParticipant(
  * @param {Array} individualPerfData array of student-specific performances
  * @param {String} studentName string of student name
  * @param {String} measurementMethod either accuracy or fluency
+ * @param {String} aimLevel aim level
  */
 function updateIndividualDataTable(
   individualPerfData,
   studentName,
-  measurementMethod
+  measurementMethod,
+  aimLevel
 ) {
   var tableBody = document.getElementById("tableBody");
   tableBody.innerHTML = "";
@@ -313,7 +315,7 @@ function updateIndividualDataTable(
     rowId++;
   });
 
-  updateFigure(studentName, measurementMethod);
+  updateFigure(studentName, measurementMethod, aimLevel);
 }
 
 /**
@@ -322,8 +324,9 @@ function updateIndividualDataTable(
  *
  * @param {String} studentName current student name
  * @param {String} measurementMethod either accuracy or fluency
+ * @param {String} aimLevel aim level
  */
-function updateFigure(studentName, measurementMethod) {
+function updateFigure(studentName, measurementMethod, aimLevel) {
   var mPlotData = [];
 
   var min = null;
@@ -371,6 +374,18 @@ function updateFigure(studentName, measurementMethod) {
         title: {
           display: true,
           text: "Participant: " + studentName,
+        },
+        annotation: {
+          annotations: {
+            line1: {
+              type: "line",
+              yMin: aimLevel,
+              yMax: aimLevel,
+              borderColor: "rgb(255, 99, 132)",
+              borderWidth: 2,
+              adjustScaleRange: true,
+            },
+          },
         },
       },
       responsive: true,
