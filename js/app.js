@@ -100,7 +100,13 @@ function snapshotUpdateCall(querySnapshot) {
       cell.appendChild(cellText);
       cell.style = "display:none";
       newRow.appendChild(cell);
+      tableBody.appendChild(newRow);
 
+      ////
+      cell = document.createElement("td");
+      cellText = document.createTextNode("TEMP");
+      cell.appendChild(cellText);
+      newRow.appendChild(cell);
       tableBody.appendChild(newRow);
 
       ////

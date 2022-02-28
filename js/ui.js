@@ -227,19 +227,19 @@ function updateIndividualDataTable(individualPerfData, studentName) {
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
-    // trialCount
+    // Set Size
     cell = document.createElement("td");
     cellText = document.createTextNode(row.setSize);
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
-    // trialCount
+    // Set ID
     cell = document.createElement("td");
     cellText = document.createTextNode(row.set);
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
-    // trialCount
+    // Number of retries
     cell = document.createElement("td");
     cellText = document.createTextNode(row.nRetries);
     cell.appendChild(cellText);
