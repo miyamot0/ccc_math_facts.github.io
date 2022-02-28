@@ -148,6 +148,7 @@ function addNewParticipant() {
       document.getElementById("addParticipantSetSize").value = "";
       document.getElementById("addParticipantSetNumber").value = "";
       document.getElementById("addPresentation").value = "";
+      document.getElementById("addParticipantAim").value = "30";
     })
     .catch(function (err) {
       alert(err);
