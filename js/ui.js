@@ -220,20 +220,6 @@ function updateIndividualDataTable(
 
   var rowId = 1;
 
-  /*
-  data = [];
-  data.push([
-    "Date",
-    "Target",
-    "Set Size",
-    "Set",
-    "Correct",
-    "Incorrect",
-    "Time",
-    "Percentage",
-  ]);
-  */
-
   individualPerfData.forEach(function (row) {
     var newRow = document.createElement("tr");
 
@@ -243,21 +229,23 @@ function updateIndividualDataTable(
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
+    const dateString = row.dateTimeStart.split(".")[0];
+
     // Session Date
     cell = document.createElement("td");
-    cellText = document.createTextNode(row.dateTimeStart);
+    cellText = document.createTextNode(dateString);
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
     // difficultyLevel
     cell = document.createElement("td");
-    cellText = document.createTextNode(row.target);
+    cellText = document.createTextNode(row.target + " (" + measurementMethod + ")");
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
     // Set Size
     cell = document.createElement("td");
-    cellText = document.createTextNode(row.setSize);
+    cellText = document.createTextNode(row.setSize + "(" + row.set + ")");
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
@@ -265,6 +253,7 @@ function updateIndividualDataTable(
     cell = document.createElement("td");
     cellText = document.createTextNode(row.set);
     cell.appendChild(cellText);
+    cell.style = "display:none";
     newRow.appendChild(cell);
 
     // Number of retries
@@ -335,7 +324,7 @@ function updateFigure(studentName, measurementMethod, aimLevel) {
 
   var table = document.getElementById("tableBody");
   for (var i = 0, row; (row = table.rows[i]); i++) {
-    const dateString = row.cells[1].innerText.split(".")[0];
+    const dateString = row.cells[1].innerText;
     const momentObj = moment(dateString);
     const metricDispay =
       measurementMethod == "Accuracy"
@@ -662,15 +651,6 @@ function download() {
   hiddenElement.download = "download.csv";
   hiddenElement.click();
   */
-}
-
-function getRandomColor() {
-  var letters = "0123456789ABCDEF".split("");
-  var color = "#";
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
 }
 
 /**

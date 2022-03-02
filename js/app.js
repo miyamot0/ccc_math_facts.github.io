@@ -75,14 +75,14 @@ function snapshotUpdateCall(querySnapshot) {
 
       ////
       cell = document.createElement("td");
-      cellText = document.createTextNode(data.target);
+      cellText = document.createTextNode(data.target + " (" + data.metric + ")");
       cell.appendChild(cellText);
       newRow.appendChild(cell);
       tableBody.appendChild(newRow);
 
       ////
       cell = document.createElement("td");
-      cellText = document.createTextNode(data.setSize);
+      cellText = document.createTextNode(data.setSize + " (" + data.set + ")");
       cell.appendChild(cellText);
       newRow.appendChild(cell);
       tableBody.appendChild(newRow);
@@ -91,6 +91,7 @@ function snapshotUpdateCall(querySnapshot) {
       cell = document.createElement("td");
       cellText = document.createTextNode(data.set);
       cell.appendChild(cellText);
+      cell.style = "display:none";
       newRow.appendChild(cell);
       tableBody.appendChild(newRow);
 
@@ -106,6 +107,7 @@ function snapshotUpdateCall(querySnapshot) {
       cell = document.createElement("td");
       cellText = document.createTextNode(data.metric);
       cell.appendChild(cellText);
+      cell.style = "display:none";
       newRow.appendChild(cell);
       tableBody.appendChild(newRow);
 
@@ -133,7 +135,7 @@ function snapshotUpdateCall(querySnapshot) {
           '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
-      aTag.innerHTML = "Load Progress";
+      aTag.innerHTML = "Load";
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
@@ -154,7 +156,7 @@ function snapshotUpdateCall(querySnapshot) {
         "data-participantPresentation",
         data.preferredOrientation
       );
-      aTag.innerHTML = "Edit Session";
+      aTag.innerHTML = "Edit";
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
@@ -170,7 +172,7 @@ function snapshotUpdateCall(querySnapshot) {
           '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
-      aTag.innerHTML = "Show Class";
+      aTag.innerHTML = "Show";
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
