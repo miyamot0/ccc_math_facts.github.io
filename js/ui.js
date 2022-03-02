@@ -77,6 +77,7 @@ function buildHeader(nParticipants) {
  * @param {QuerySnapshot} qS
  */
 function onTeacherUpdateCall(qS) {
+  console.log("onTeacherUpdateCall")
   document.getElementById("adminTag").innerHTML = "";
 
   if (!qS.empty)
@@ -446,8 +447,6 @@ function updateFigureClasswide(arrayOfArrays) {
   var min = null;
   var max = null;
 
-  console.log(arrayOfArrays);
-
   var datasetsBig = [];
 
   for (var i = 0; i < arrayOfArrays.length; i++) {
@@ -457,61 +456,63 @@ function updateFigureClasswide(arrayOfArrays) {
       name = null,
       measurementMethod = null;
 
+    if (student == null || student.length == 0) {
+      continue;
+    }
+      
     if (student.length > 1) {
       var student = student.sort(function (a, b) {
         return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
       });
+    }
 
-      for (var j = 0; j < student.length; j++) {
-        const data = student[j];
+    for (var j = 0; j < student.length; j++) {
+      const data = student[j];
 
-        id = id == null ? data.id : id;
-        name = name == null ? arrayOfArrays[i].name : name;
-        measurementMethod =
-          measurementMethod == null
-            ? arrayOfArrays[i].metric
-            : measurementMethod;
+      id = id == null ? data.id : id;
+      name = name == null ? arrayOfArrays[i].name : name;
+      measurementMethod =
+        measurementMethod == null
+          ? arrayOfArrays[i].metric
+          : measurementMethod;
 
-        const pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
-        const cpm =
-          data.nCorrectInitial / (parseFloat(data.sessionDuration) / 60);
+      const pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
+      const cpm =
+        data.nCorrectInitial / (parseFloat(data.sessionDuration) / 60);
 
-        const dateString = data.dateTimeStart.split(".")[0];
-        const momentObj = moment(dateString);
+      const dateString = data.dateTimeStart.split(".")[0];
+      const momentObj = moment(dateString);
 
-        if (min == null || max == null) {
-          min = momentObj;
-          max = momentObj;
-        }
-
-        min = momentObj.isBefore(min) ? momentObj : min;
-        max = momentObj.isAfter(max) ? momentObj : max;
-
-        dataSeries.push({
-          x: moment(dateString),
-          y:
-            measurementMethod == "Accuracy"
-              ? parseFloat(pct.toFixed(2))
-              : parseFloat(cpm.toFixed(2)),
-        });
+      if (min == null || max == null) {
+        min = momentObj;
+        max = momentObj;
       }
 
-      // TODO: smarter way to assign colours
+      min = momentObj.isBefore(min) ? momentObj : min;
+      max = momentObj.isAfter(max) ? momentObj : max;
 
-      var colour = getRandomColor();
-
-      datasetsBig.push({
-        label: name,
-        data: dataSeries,
-        borderColor: colour,
-        backgroundColor: colour,
-        fill: false,
-        lineTension: 0,
+      dataSeries.push({
+        x: moment(dateString),
+        y:
+          measurementMethod == "Accuracy"
+            ? parseFloat(pct.toFixed(2))
+            : parseFloat(cpm.toFixed(2)),
       });
     }
+
+    var colour = CSS_COLOR_NAMES[i]; //getRandomColor();
+
+    datasetsBig.push({
+      label: name,
+      data: dataSeries,
+      borderColor: colour,
+      backgroundColor: colour,
+      fill: false,
+      lineTension: 0,
+    });
   }
 
-  const config = {
+  var config = {
     type: "line",
     data: {
       datasets: datasetsBig,
@@ -563,9 +564,9 @@ function updateFigureClasswide(arrayOfArrays) {
         },
       },
     },
-  };
+  }
 
-  const ctx = document.getElementById("canvas").getContext("2d");
+  var ctx = document.getElementById("canvas").getContext("2d");
 
   if (window.myLine != null) {
     window.myLine.destroy();
