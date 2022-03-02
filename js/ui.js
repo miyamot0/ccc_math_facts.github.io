@@ -77,7 +77,6 @@ function buildHeader(nParticipants) {
  * @param {QuerySnapshot} qS
  */
 function onTeacherUpdateCall(qS) {
-  console.log("onTeacherUpdateCall")
   document.getElementById("adminTag").innerHTML = "";
 
   if (!qS.empty)
