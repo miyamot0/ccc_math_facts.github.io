@@ -189,7 +189,7 @@ function snapshotUpdateCall(querySnapshot) {
           '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
-      aTag.innerHTML = "Load";
+      aTag.innerHTML = "Display";
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
@@ -208,7 +208,7 @@ function snapshotUpdateCall(querySnapshot) {
       aTag.setAttribute("data-participantAim", data.aim);
       aTag.setAttribute("data-participantError", data.errorFeedback);
 
-      aTag.innerHTML = "Edit";
+      aTag.innerHTML = "Modify";
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);
@@ -224,7 +224,7 @@ function snapshotUpdateCall(querySnapshot) {
           '");'
       );
       aTag.setAttribute("class", "leading btn btn-raised");
-      aTag.innerHTML = "Show";
+      aTag.innerHTML = "Compare";
       cell = document.createElement("td");
       cell.appendChild(aTag);
       newRow.appendChild(cell);

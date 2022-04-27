@@ -305,19 +305,6 @@ function updateIndividualDataTable(
 
     tableBody.appendChild(newRow);
 
-    /*
-    data.push([
-      row.sessionDate,
-      row.target,
-      row.setSize,
-      row.set,
-      row.nCorrectInitial,
-      row.errCount,
-      row.sessionDuration,
-      pct.toFixed(2),
-    ]);
-    */
-
     rowId++;
   });
 
@@ -650,8 +637,13 @@ function clearFigure() {
  * Download the current table
  *
  */
-function download() {
+function downloadTable() {
   var tableReference = document.getElementById("mTableRef");
+
+  if (tableReference == null || tableReference.rows.length == 1) {
+    return;
+  }
+
   var csvData = [];
 
   for (var i = 0; i < tableReference.rows.length; i++) {
