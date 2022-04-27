@@ -238,14 +238,16 @@ function updateIndividualDataTable(
     newRow.appendChild(cell);
 
     // difficultyLevel
+    /*
     cell = document.createElement("td");
     cellText = document.createTextNode(row.target + " (" + measurementMethod + ")");
     cell.appendChild(cellText);
     newRow.appendChild(cell);
+    */
 
     // Set Size
     cell = document.createElement("td");
-    cellText = document.createTextNode(row.setSize + "(" + row.set + ")");
+    cellText = document.createTextNode(row.setSize + " (" + row.set + ")");
     cell.appendChild(cellText);
     newRow.appendChild(cell);
 
@@ -328,8 +330,8 @@ function updateFigure(studentName, measurementMethod, aimLevel) {
     const momentObj = moment(dateString);
     const metricDispay =
       measurementMethod == "Accuracy"
-        ? parseFloat(row.cells[6].innerText)
-        : parseFloat(row.cells[8].innerText);
+        ? parseFloat(row.cells[5].innerText)
+        : parseFloat(row.cells[7].innerText);
 
     if (min == null || max == null) {
       min = momentObj;
@@ -447,7 +449,7 @@ function updateFigureClasswide(arrayOfArrays) {
     if (student == null || student.length == 0) {
       continue;
     }
-      
+
     if (student.length > 1) {
       var student = student.sort(function (a, b) {
         return new Date(a.dateTimeStart) - new Date(b.dateTimeStart);
@@ -460,9 +462,7 @@ function updateFigureClasswide(arrayOfArrays) {
       id = id == null ? data.id : id;
       name = name == null ? arrayOfArrays[i].name : name;
       measurementMethod =
-        measurementMethod == null
-          ? arrayOfArrays[i].metric
-          : measurementMethod;
+        measurementMethod == null ? arrayOfArrays[i].metric : measurementMethod;
 
       const pct = (data.nCorrectInitial / parseFloat(data.setSize)) * 100;
       const cpm =
@@ -552,7 +552,7 @@ function updateFigureClasswide(arrayOfArrays) {
         },
       },
     },
-  }
+  };
 
   var ctx = document.getElementById("canvas").getContext("2d");
 
