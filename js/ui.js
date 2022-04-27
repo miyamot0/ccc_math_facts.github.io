@@ -106,8 +106,6 @@ function addNewParticipant() {
   var pTarget = document.getElementById("addParticipantTarget").value,
     pSetSize = document.getElementById("addParticipantSetSize").value,
     pSetNum = document.getElementById("addParticipantSetNumber").value,
-    pPrf = document.getElementById("addPresentation").value,
-    noPref = pPrf == "No Preference",
     pMet = document.getElementById("addParticipantMetric").value,
     pAim = document.getElementById("addParticipantAim").value;
 
@@ -134,10 +132,9 @@ function addNewParticipant() {
       target: pTarget,
       set: parseInt(pSetNum),
       setSize: parseInt(pSetSize),
-      preferredOrientation: pPrf,
-      hasPreference: !noPref,
       metric: pMet,
       random: false,
+      errorFeedback: "Each Trial Always",
       aim: pAim,
     })
     .then(function (_) {
@@ -147,7 +144,6 @@ function addNewParticipant() {
       document.getElementById("addParticipantTarget").value = "";
       document.getElementById("addParticipantSetSize").value = "";
       document.getElementById("addParticipantSetNumber").value = "";
-      document.getElementById("addPresentation").value = "";
       document.getElementById("addParticipantAim").value = "30";
     })
     .catch(function (err) {
@@ -664,18 +660,18 @@ $(document).on("click", ".open-sessionDialog", function () {
   var pTgt = $(this).data("participanttarget");
   var pSS = $(this).data("participantsetsize");
   var pNum = $(this).data("participantset");
-  var pPrf = $(this).data("participantpresentation");
   var pMet = $(this).data("participantmetric");
   var pAim = $(this).data("participantaim");
+  var pErr = $(this).data("participanterror");
 
   $(".modal-body #editParticipantTag").val(pTag);
   $(".modal-body #editParticipantTarget").val(pTgt);
   $(".modal-body #editParticipantSetSize").val(pSS);
   $(".modal-body #editParticipantSet").val(pNum);
   $(".modal-body #editParticipantID").val(pId);
-  $(".modal-body #editPresentation").val(pPrf);
   $(".modal-body #editParticipantMetric").val(pMet);
   $(".modal-body #editParticipantAim").val(pAim);
+  $(".modal-body #editErrorPresentation").val(pErr);
 
   $("#editParticipantSave").click(null);
   $("#editParticipantSave")
@@ -685,9 +681,9 @@ $(document).on("click", ".open-sessionDialog", function () {
         pTgt = document.getElementById("editParticipantTarget").value,
         pSS = document.getElementById("editParticipantSetSize").value,
         pNum = document.getElementById("editParticipantSet").value,
-        pPrf = document.getElementById("editPresentation").value,
-        pMet = document.getElementById("editParticipantMetric").value;
-      pAim = document.getElementById("editParticipantAim").value;
+        pMet = document.getElementById("editParticipantMetric").value,
+        pAim = document.getElementById("editParticipantAim").value,
+        pErr = document.getElementById("editErrorPresentation").value;
 
       if (pTag == null || pTag.length < 3) {
         window.alert("Please supply a name or tag for the student");
@@ -713,18 +709,15 @@ $(document).on("click", ".open-sessionDialog", function () {
       pNum = parseInt(pNum);
       pAim = parseInt(pAim);
 
-      var noPref = pPrf == "No Preference";
-
       db.doc(getStudentCollectionPath(currentUserId) + "/" + pId)
         .update({
           name: pTag,
           set: pNum,
           setSize: pSS,
           target: pTgt,
-          preferredOrientation: pPrf,
-          hasPreference: !noPref,
           metric: pMet,
           aim: pAim,
+          errorFeedback: pErr,
         })
         .then(function (_) {
           $("#editParticipantModal").modal("hide");
@@ -734,9 +727,9 @@ $(document).on("click", ".open-sessionDialog", function () {
           document.getElementById("editParticipantSetSize").value = "";
           document.getElementById("editParticipantSet").value = "";
           document.getElementById("editParticipantID").value = "";
-          document.getElementById("editPresentation").value = "";
           document.getElementById("editParticipantMetric").value = "";
           document.getElementById("editParticipantAim").value = "";
+          document.getElementById("editErrorPresentation").value = "";
         })
         .catch(function (err) {
           alert(err);

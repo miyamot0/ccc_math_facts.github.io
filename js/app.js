@@ -206,10 +206,8 @@ function snapshotUpdateCall(querySnapshot) {
       aTag.setAttribute("data-participantSet", data.set);
       aTag.setAttribute("data-participantMetric", data.metric);
       aTag.setAttribute("data-participantAim", data.aim);
-      aTag.setAttribute(
-        "data-participantPresentation",
-        data.preferredOrientation
-      );
+      aTag.setAttribute("data-participantError", data.errorFeedback);
+
       aTag.innerHTML = "Edit";
       cell = document.createElement("td");
       cell.appendChild(aTag);

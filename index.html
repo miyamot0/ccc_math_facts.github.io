@@ -70,6 +70,11 @@
               <li class="authElements" style="display: none">
                 <a href="javascript:download()">Download</a>
               </li>
+              <li class="authElements">
+                <a href="#" data-toggle="modal" data-target="#helpModal"
+                  >Help</a
+                >
+              </li>
               <li class="authElements" style="display: none">
                 <a href="javascript:logout()">Logout</a>
               </li>
@@ -237,6 +242,81 @@
     </main>
 
     <!-- Modal -->
+    <div id="helpModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4 class="modal-title">Help Guide</h4>
+            <p>
+              The Cover Copy Compare dashboard allows for remote customization
+              and review of student intervention programming. Once signed up and
+              signed into the app, you can customize student targets (i.e.,
+              skills) as well as aspects of intervention (e.g., set size,
+              different sets, error feedback). Specific programming settings are
+              indicated below:
+            </p>
+            <br />
+
+            <h4 class="modal-title">Skill</h4>
+            <p>
+              The app and dashboard include a total of four different skill
+              targets: Math facts for Addition, Subtraction, Multiplication, and
+              Division. The target skill may be changed at any given time;
+              however, only one skill can be targeted at a given time. Progress
+              is saved when skills changed for future review.
+            </p>
+            <br />
+
+            <h4 class="modal-title">Metric</h4>
+            <p>
+              The literature overwhelmingly supports fluency (i.e., digits
+              correct/minute) as an indicator of math performance. However,
+              there are situations in which it may be helpful to first focus on
+              establishing accuracy. Both Accuracy (i.e., percent problems
+              correct) and Fluency (i.e., digits correct/minute) can be selected
+              in the application and dashboard. You may switch between these at
+              any time.
+            </p>
+            <br />
+
+            <h4 class="modal-title">Set Size/Set Number</h4>
+            <p>
+              Various implementations of Cover Copy Compare vary as a function
+              of the size of the item set (e.g., 16 problems, 24 problems).
+              Depending on the time constraints and the learner, certain
+              conditions favor smaller sets (e.g., 8 problems) while others
+              favor larger sets (e.g., 24 problems). The dashboard allows you to
+              change the size (i.e., number of problems) and the specific item
+              set. Each set contains a specific collection of problems and you
+              may wish to move to a different set of math problems as fluency is
+              established in earlier sets.
+            </p>
+            <br />
+
+            <h4 class="modal-title">Aim Line</h4>
+            <p>
+              Oftentimes there are specific short-term levels or rates related
+              to learning that serve as a goal for learners (and educators). In
+              the visual feedback presented to learners, you may set an "aim
+              line" to indicate to the user where the expected/desired level of
+              performance is located. This may be changed at any time.
+            </p>
+            <br />
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+      <!-- /.Modal content -->
+    </div>
+    <!-- /.Modal -->
+
+    <!-- Modal -->
     <div id="addParticipantModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
         <!-- Modal content-->
@@ -302,19 +382,6 @@
                 <option>15</option>
                 <option>16</option>
                 <option>17</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="addPresentation" class="bmd-label-floating"
-                >Select Presentation Mode (i.e., Vertical, Horizontal, No
-                Preference)</label
-              >
-
-              <select class="form-control" id="addPresentation">
-                <option>Vertical</option>
-                <option>Horizontal</option>
-                <option>No Preference</option>
               </select>
             </div>
 
@@ -428,19 +495,6 @@
             </div>
 
             <div class="form-group">
-              <label for="editPresentation" class="bmd-label-floating"
-                >Select Presentation Mode (i.e., Vertical, Horizontal, No
-                Preference)</label
-              >
-
-              <select class="form-control" id="editPresentation">
-                <option>Vertical</option>
-                <option>Horizontal</option>
-                <option>No Preference</option>
-              </select>
-            </div>
-
-            <div class="form-group">
               <label for="editParticipantMetric" class="bmd-label-floating"
                 >Performance metric (i.e., Accuracy, Fluency)</label
               >
@@ -456,6 +510,18 @@
                 >Enter aim for student performance</label
               >
               <input type="text" class="form-control" id="editParticipantAim" />
+            </div>
+
+            <div class="form-group">
+              <label for="editErrorPresentation" class="bmd-label-floating"
+                >Error Feedback</label
+              >
+
+              <select class="form-control" id="editErrorPresentation">
+                <option>Each Trial Always</option>
+                <option>Each Erred Trial</option>
+                <option>No Error Feedback</option>
+              </select>
             </div>
 
             <div class="form-group">
