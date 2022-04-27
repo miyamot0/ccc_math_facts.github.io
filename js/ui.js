@@ -24,6 +24,15 @@ function logout() {
     unsubscribe();
   }
 
+  clearField();
+
+  firebase.auth().signOut();
+}
+
+/**
+ * Clear the field
+ */
+function clearField() {
   document.getElementById("participantDiv").innerHTML = "";
   document.getElementById("selectHolder").innerHTML = "";
   document.getElementById("tableBody").innerHTML = "";
@@ -31,8 +40,14 @@ function logout() {
   document.getElementById("nParticipantSpan").innerHTML = buildHeader("...");
 
   clearFigure();
+}
 
-  firebase.auth().signOut();
+/**
+ * Clear credentials after login/logout
+ */
+function clearCredentials() {
+  document.getElementById("email_field").value = "";
+  document.getElementById("password_field").value = "";
 }
 
 /**
@@ -168,7 +183,8 @@ function updateParticipant(
   measurementMethod,
   aimLevel
 ) {
-  document.getElementById("tagParticipantSpan").innerHTML = studentName;
+  document.getElementById("tagParticipantSpan").innerHTML =
+    "" + studentName + " (" + targetSkill + ")";
 
   const currPath = getStudentPerformanceCollectionPath(
     studentId,
@@ -248,11 +264,13 @@ function updateIndividualDataTable(
     newRow.appendChild(cell);
 
     // Set ID
+    /*
     cell = document.createElement("td");
     cellText = document.createTextNode(row.set);
     cell.appendChild(cellText);
     cell.style = "display:none";
     newRow.appendChild(cell);
+    */
 
     // Number of retries
     cell = document.createElement("td");
@@ -326,8 +344,8 @@ function updateFigure(studentName, measurementMethod, aimLevel) {
     const momentObj = moment(dateString);
     const metricDispay =
       measurementMethod == "Accuracy"
-        ? parseFloat(row.cells[5].innerText)
-        : parseFloat(row.cells[7].innerText);
+        ? parseFloat(row.cells[4].innerText)
+        : parseFloat(row.cells[6].innerText);
 
     if (min == null || max == null) {
       min = momentObj;
@@ -633,20 +651,27 @@ function clearFigure() {
  *
  */
 function download() {
-  // TODO: stubbed for now
-  /*
-  var csv = "";
-  data.forEach(function (row) {
-    csv += row.join(",");
-    csv += "\n";
-  });
+  var tableReference = document.getElementById("mTableRef");
+  var csvData = [];
+
+  for (var i = 0; i < tableReference.rows.length; i++) {
+    var columnElements = tableReference.rows.item(i).cells;
+
+    var csvRowElement = [];
+    for (var j = 0; j < columnElements.length; j++) {
+      csvRowElement.push(columnElements[j].innerHTML);
+    }
+
+    csvData.push(csvRowElement.join(","));
+  }
+
+  csvData = csvData.join("\n");
 
   var hiddenElement = document.createElement("a");
-  hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+  hiddenElement.href = "data:text/csv;charset=utf-8," + encodeURI(csvData);
   hiddenElement.target = "_blank";
-  hiddenElement.download = "download.csv";
+  hiddenElement.download = "CurrentParticipantData.csv";
   hiddenElement.click();
-  */
 }
 
 /**

@@ -152,12 +152,11 @@
                     <tr>
                       <th scope="col">Session</th>
                       <th scope="col">Date</th>
-                      <th scope="col" style="display: none">Skill</th>
                       <th scope="col">Set Size (Set Number)</th>
                       <th scope="col">Retries</th>
                       <th scope="col">% Correct</th>
                       <th scope="col">Time (s)</th>
-                      <th scope="col">Performance</th>
+                      <th scope="col">DCPM</th>
                       <th scope="col">Errors</th>
                     </tr>
                   </thead>
@@ -560,10 +559,6 @@
         apiKey: "AIzaSyDlyXTl-vh5cKXM8899hYk9de6Njuwsc3w",
         authDomain: "covcopcompmathfact.firebaseapp.com",
         projectId: "covcopcompmathfact",
-        storageBucket: "covcopcompmathfact.appspot.com",
-        messagingSenderId: "206486473497",
-        appId: "1:206486473497:web:4b34e91ad8534338ca5388",
-        measurementId: "G-7QE2GHRE1E",
       });
 
       const db = firebase.firestore();
@@ -598,8 +593,7 @@
           showAuthContent();
         }
 
-        document.getElementById("email_field").value = "";
-        document.getElementById("password_field").value = "";
+        clearCredentials();
       });
 
       var oldListenerPath = null;
