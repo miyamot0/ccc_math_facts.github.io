@@ -46,6 +46,58 @@ function onAdminUpdateCall(querySnapshot) {
 
 /**
  *
+ * Listener for snapshot changes
+ *
+ * @param {Array} teacherIds
+ */
+function onCoordinatorCall(teacherIds) {
+  if (teacherIds.length > 0) {
+    var selectHolderRef = document.getElementById("selectHolder");
+    selectHolderRef.innerHTML = "";
+
+    var selectList = document.createElement("select");
+    selectList.id = "selectListId";
+
+    var option = document.createElement("option");
+    option.value = null;
+    option.text = "Please select teacher";
+    selectList.appendChild(option);
+
+    teacherIds.forEach(function (id) {
+      db.doc("mainCollection/" + id)
+        .get()
+        .then((res) => {
+          var option = document.createElement("option");
+          option.value = id;
+          option.text = res.data().teacherName;
+          selectList.appendChild(option);
+        });
+    });
+
+    selectHolderRef.addEventListener("change", function () {
+      const selRef = document.getElementById("selectListId");
+
+      if (selRef.value != null) {
+        var selectedID = selRef.options[selRef.selectedIndex].value;
+
+        document.getElementById("participantDiv").innerHTML = "";
+        document.getElementById("tableBody").innerHTML = "";
+        document.getElementById("tableBody2").innerHTML = "";
+
+        clearFigure();
+
+        db.collection(getStudentCollectionPath(selectedID)).onSnapshot(
+          snapshotUpdateCall
+        );
+      }
+    });
+
+    selectHolderRef.appendChild(selectList);
+  }
+}
+
+/**
+ *
  * Listener for participant snapshot changes
  *
  * @param {QuerySnapshot} querySnapshot
@@ -75,7 +127,9 @@ function snapshotUpdateCall(querySnapshot) {
 
       ////
       cell = document.createElement("td");
-      cellText = document.createTextNode(data.target + " (" + data.metric + ")");
+      cellText = document.createTextNode(
+        data.target + " (" + data.metric + ")"
+      );
       cell.appendChild(cellText);
       newRow.appendChild(cell);
       tableBody.appendChild(newRow);

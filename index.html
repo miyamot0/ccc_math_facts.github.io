@@ -25,7 +25,7 @@
 
     <!-- Template styles -->
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
-    <link rel="shortcut icon" href="#">
+    <link rel="shortcut icon" href="#" />
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
@@ -510,21 +510,24 @@
 
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          hideAuthContent();
-          teacherListenerPath = getCollectionPath();
+          firebase
+            .auth()
+            .currentUser.getIdTokenResult()
+            .then((idResult) => {
+              hideAuthContent();
 
-          db.collection(teacherListenerPath).onSnapshot(
-            (querySnapshot) => {
-              onAdminUpdateCall(querySnapshot);
-            },
-            (error) => {
               currentUserId = user.uid;
-              teacherListenerPath = getStudentCollectionPath(currentUserId);
-              db.collection(teacherListenerPath).onSnapshot(
-                onTeacherUpdateCall
-              );
-            }
-          );
+
+              if (idResult.claims.role == "coordinator") {
+                // TODO: clarify visuals for coordinator
+                onCoordinatorCall(idResult.claims.access);
+              } else if (idResult.claims.role == "user") {
+                teacherListenerPath = getStudentCollectionPath(currentUserId);
+                db.collection(teacherListenerPath).onSnapshot(
+                  onTeacherUpdateCall
+                );
+              }
+            });
         } else {
           showAuthContent();
         }
