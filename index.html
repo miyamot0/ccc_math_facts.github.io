@@ -381,6 +381,8 @@
                 <option>15</option>
                 <option>16</option>
                 <option>17</option>
+                <option>18</option> <!-- TODO: 18/19 just for research 2022-->
+                <option>19</option> <!-- TODO: 18/19 just for research 2022-->
               </select>
             </div>
 
@@ -768,6 +770,26 @@
 
       $(document).ready(function () {
         $.material.init();
+
+        var targetSelectorReferenceAdd = document.getElementById("addParticipantTarget");
+        targetSelectorReferenceAdd.addEventListener("change", function () {
+          const targetRef = document.getElementById("addParticipantTarget");
+
+          if (targetRef.value != null) {
+
+            var selectHolderRefAdd = document.getElementById("addParticipantSetNumber");
+            selectHolderRefAdd.innerHTML = "";
+
+            var maxValue = targetRef.value == "Math Facts-Addition" ? 20 : 18;
+
+            for (var i = 0; i < maxValue; i++) {
+                var option = document.createElement("option");
+                option.value = i.toString();
+                option.text = i.toString();
+                selectHolderRefAdd.appendChild(option);
+            }
+          }
+        });
       });
     </script>
   </body>
