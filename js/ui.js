@@ -681,6 +681,42 @@ $(document).on("click", ".open-sessionDialog", function () {
   var pAim = $(this).data("participantaim");
   var pErr = $(this).data("participanterror");
 
+  console.log('in window');
+
+  var selectHolderRefEdit = document.getElementById("editParticipantSet");
+  selectHolderRefEdit.innerHTML = "";
+
+  var maxValueEdit = pTgt == "Math Facts-Addition" ? 20 : 18;
+
+  for (var i = 0; i < maxValueEdit; i++) {
+      var option = document.createElement("option");
+      option.value = i.toString();
+      option.text = i.toString();
+      selectHolderRefEdit.appendChild(option);
+  }
+
+  var targetSelectorReferenceEdit = document.getElementById("editParticipantTarget");
+  targetSelectorReferenceEdit.addEventListener("change", function () {
+    const targetRef = document.getElementById("editParticipantTarget");
+
+    if (targetRef.value != null) {
+
+      var selectHolderRefEdit = document.getElementById("editParticipantSet");
+      selectHolderRefEdit.innerHTML = "";
+
+      var maxValue = targetRef.value == "Math Facts-Addition" ? 20 : 18;
+
+      for (var i = 0; i < maxValue; i++) {
+          var option = document.createElement("option");
+          option.value = i.toString();
+          option.text = i.toString();
+          selectHolderRefEdit.appendChild(option);
+      }
+
+      $(".modal-body #editParticipantSet").val(0);
+    }
+  });
+
   $(".modal-body #editParticipantTag").val(pTag);
   $(".modal-body #editParticipantTarget").val(pTgt);
   $(".modal-body #editParticipantSetSize").val(pSS);
